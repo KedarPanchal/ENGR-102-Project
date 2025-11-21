@@ -1,0 +1,1 @@
+""" Different components of a Flip Seven game. """
