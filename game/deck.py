@@ -1,4 +1,4 @@
-from .card import BaseCard
+from .card import BaseCard, NumberCard, ScoreModifierCard
 from typing import List
 import random
 
@@ -13,8 +13,24 @@ class Deck:
     """
 
     def __init__(self):
-        """Initialize an empty deck."""
+        """Initialize a deck with all cards for the Flip Seven game.
+        
+        Creates and adds the following cards to the deck:
+        - NumberCards: 12 twelves, 11 elevens, 10 tens, down to 1 one, plus 1 zero
+        - ScoreModifierCards: One each of +2 through +10, and one x2 multiplier
+        - ActionCards: To be added when their implementation is complete
+        """
         self.cards: List[BaseCard] = []
+        for number in range(1, 13):
+            for _ in range(number):
+                self.cards.append(NumberCard(number))
+        self.cards.append(NumberCard(0))
+
+        for i in range(2, 11):
+            self.cards.append(ScoreModifierCard(i, True))
+        self.cards.append(ScoreModifierCard(2, False))
+
+        # TODO: Add ActionCards when their implementation is complete
 
     def shuffle(self):
         """Randomly shuffle the cards in the deck."""

@@ -78,12 +78,16 @@ Cards that trigger special effects when drawn, targeting any active player. Thes
 
 #### `Deck`
 Manages the collection of all cards used in the game. The Deck class:
-- Stores all the cards in a list
+- Automatically creates and stores all the cards when initialized
+- Contains the correct quantities of each card type:
+  - Number cards: twelve 12s, eleven 11s, ten 10s, down to one 1, plus one 0
+  - Score modifiers: one of each from +2 to +10, plus one x2 multiplier
+  - Action cards: (to be added when implemented)
 - Can shuffle the cards randomly
 - Allows players to draw cards from the top
 - Can accept returned cards (when rounds end and cards are discarded)
 
-Think of it like the actual deck of cards sitting on the table that everyone draws from.
+Think of it like the actual deck of cards sitting on the table that everyone draws from. When you create a Deck object, it automatically fills itself with all the cards needed for the game!
 
 #### `Player`
 Represents each person playing the game. The Player class:
@@ -104,14 +108,34 @@ The Player class also handles the special rule that drawing seven unique NumberC
 
 When you play Flip 7:
 
-1. A **Deck** object is created and filled with all the card objects (NumberCards, ScoreModifierCards, and ActionCards)
+1. A **Deck** object is created, which automatically fills itself with all the card objects (NumberCards, ScoreModifierCards, and ActionCards)
 2. **Player** objects are created for each person playing
-3. The deck shuffles its cards
+3. The deck shuffles its cards using the `shuffle()` method
 4. Each player takes turns calling their `hit()` method to draw cards from the deck
 5. Players check if they're busted or have won with `is_busted()` and `has_seven()`
 6. When a player decides to stay, they call `stay()` which calculates their final score
 7. After the round, cards are returned to the deck with `return_cards()`
 8. The game continues until someone's score reaches 200 or higher!
+
+**Example in code:**
+```python
+# Create a deck (it automatically fills itself with cards)
+deck = Deck()
+
+# Create players
+player1 = Player(1)
+player2 = Player(2)
+
+# Shuffle the deck
+deck.shuffle()
+
+# Player 1 draws a card
+player1.hit(deck)
+
+# Check if player 1 has seven unique cards
+if player1.has_seven():
+    print("Player 1 wins the round!")
+```
 
 ## Why Use Classes?
 
