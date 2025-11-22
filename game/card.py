@@ -7,12 +7,17 @@ class BaseCard(ABC):
     This class serves as the foundation for all card implementations,
     ensuring a consistent interface across different card types.
     """
+    pass
 
 
 class AddableCard(BaseCard):
-    """Abstract class for cards that can be added together.
+    """Abstract class for cards that have numeric values.
 
-    This class defines the interface for cards that support addition operations.
+    This class defines the interface for cards that have a numeric value
+    that can be used in score calculations.
+    
+    Attributes:
+        _value: The numeric value of the card.
     """
 
     def __init__(self, value: int):
@@ -37,9 +42,7 @@ class NumberCard(AddableCard):
 
     Number cards have a numeric value and can be compared for equality.
     Players collect sets of unique number cards to achieve victory.
-
-    Attributes:
-        _value: The numeric value of the card.
+    Players must collect exactly seven unique number cards without duplicates.
     """
 
     def __hash__(self):
@@ -68,6 +71,11 @@ class ScoreModifierCard(AddableCard):
     """Represents a card that modifies player scores.
 
     These cards affect the scoring mechanism of the game when played.
+    They can either add to or multiply the player's score.
+    
+    Attributes:
+        _value: The modifier value (inherited from AddableCard).
+        _is_addition: Whether this card adds (True) or multiplies (False).
     """
 
     def __init__(self, modifier: int, is_addition: bool):
@@ -75,6 +83,7 @@ class ScoreModifierCard(AddableCard):
 
         Args:
             modifier: The score modification value.
+            is_addition: True if this card adds to score, False if it multiplies.
         """
         super().__init__(modifier)
         self._is_addition = is_addition
@@ -89,9 +98,10 @@ class ScoreModifierCard(AddableCard):
 
 
 class ActionCard(BaseCard):
-    """Represents a card that triggers special actions.
+    """Represents a card that triggers special actions when drawn.
 
-    Action cards provide special game effects when played.
+    Action cards provide special game effects that target players.
+    Subclasses must implement the action method to define behavior.
     """
 
     @abstractmethod

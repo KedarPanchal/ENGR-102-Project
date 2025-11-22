@@ -17,8 +17,9 @@ class Player:
 
     Attributes:
         id: Unique identifier for the player.
-        score: Current score of the player.
+        _score: Current score of the player (private attribute).
         hand: List of cards currently held by the player.
+        active: Whether the player is still active in the current round.
     """
 
     def __init__(self, id: int):
@@ -34,12 +35,15 @@ class Player:
 
     def hit(self, deck: Deck) -> bool:
         """Draw a card from the deck and add it to the player's hand.
+        
+        If the drawn card is an ActionCard, its action is immediately executed.
+        The player must be active to draw cards.
 
         Args:
             deck: The deck to draw a card from.
 
         Returns:
-            True if the card was able to be drawn, False otherwise.
+            True if a card was successfully drawn, False otherwise.
         """
         if not self.active:
             return False
@@ -56,10 +60,10 @@ class Player:
         return True
 
     def stay(self) -> None:
-        """Check if the player's hand consists only of score modifier cards.
-
-        Returns:
-            True if all cards in hand are ScoreModifierCards, False otherwise.
+        """End the player's turn and finalize their score for the round.
+        
+        Marks the player as inactive and calculates their final score
+        based on the cards in their hand.
         """
         self.active = False
         self.update_score()
@@ -82,10 +86,20 @@ class Player:
         return len({card for card in self.hand if isinstance(card, NumberCard)}) == 7
 
     def add_bonus(self):
+        """Add a bonus to the player's score if they have seven unique cards.
+        
+        Awards 15 bonus points if the player has exactly seven unique number
+        cards without duplicates.
+        """
         if self.has_seven() and not self.is_busted():
             self._score += 15
 
     def update_score(self):
+        """Calculate and update the player's score based on cards in hand.
+        
+        Applies all score modifiers (multipliers first, then additions) and
+        adds the values of all number cards to calculate the final score.
+        """
         total_multiplier = 1
         total_addition = 0
         for card in self.hand:
@@ -114,6 +128,11 @@ class Player:
         return discarded_hand
 
     def won_game(self) -> bool:
+        """Check if the player has won the game.
+        
+        Returns:
+            True if the player's score is 200 or higher, False otherwise.
+        """
         return self._score >= 200
 
     def __iter__(self) -> Iterator[BaseCard]:
