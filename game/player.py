@@ -35,7 +35,7 @@ class Player:
 
     def hit(self, deck: Deck) -> bool:
         """Draw a card from the deck and add it to the player's hand.
-        
+
         If the drawn card is an ActionCard, its action is immediately executed.
         The player must be active to draw cards.
 
@@ -61,7 +61,7 @@ class Player:
 
     def stay(self) -> None:
         """End the player's turn and finalize their score for the round.
-        
+
         Marks the player as inactive and calculates their final score
         based on the cards in their hand.
         """
@@ -87,7 +87,7 @@ class Player:
 
     def add_bonus(self):
         """Add a bonus to the player's score if they have seven unique cards.
-        
+
         Awards 15 bonus points if the player has exactly seven unique number
         cards without duplicates.
         """
@@ -96,7 +96,7 @@ class Player:
 
     def update_score(self):
         """Calculate and update the player's score based on cards in hand.
-        
+
         Applies all score modifiers (multipliers first, then additions) and
         adds the values of all number cards to calculate the final score.
         """
@@ -129,7 +129,7 @@ class Player:
 
     def won_game(self) -> bool:
         """Check if the player has won the game.
-        
+
         Returns:
             True if the player's score is 200 or higher, False otherwise.
         """
@@ -142,3 +142,14 @@ class Player:
             Iterator over the cards in the player's hand.
         """
         return iter(self.hand)
+
+    def __str__(self) -> str:
+        """Provide a string representation of the player.
+
+        Returns:
+            A string showing the player's ID and current score.
+        """
+        ret_str = f"Player {self.id} Score: {self._score}\nHand: "
+        ret_str += " ".join([str(card) for card in self.hand])
+
+        return ret_str.strip()

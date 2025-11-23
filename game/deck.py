@@ -1,5 +1,6 @@
 from .card import BaseCard, NumberCard, ScoreModifierCard
 from typing import List
+from functools import reduce
 import random
 
 
@@ -14,27 +15,27 @@ class Deck:
 
     def __init__(self):
         """Initialize a deck with all cards for the Flip Seven game.
-        
+
         Creates and adds the following cards to the deck:
         - NumberCards: 12 twelves, 11 elevens, 10 tens, down to 1 one, plus 1 zero
         - ScoreModifierCards: One each of +2 through +10, and one x2 multiplier
         - ActionCards: To be added when their implementation is complete
         """
-        self.cards: List[BaseCard] = []
+        self._cards: List[BaseCard] = []
         for number in range(1, 13):
             for _ in range(number):
-                self.cards.append(NumberCard(number))
-        self.cards.append(NumberCard(0))
+                self._cards.append(NumberCard(number))
+        self._cards.append(NumberCard(0))
 
         for i in range(2, 11):
-            self.cards.append(ScoreModifierCard(i, True))
-        self.cards.append(ScoreModifierCard(2, False))
+            self._cards.append(ScoreModifierCard(i, True))
+        self._cards.append(ScoreModifierCard(2, False))
 
         # TODO: Add ActionCards when their implementation is complete
 
     def shuffle(self):
         """Randomly shuffle the cards in the deck."""
-        random.shuffle(self.cards)
+        random.shuffle(self._cards)
 
     def take_card(self):
         """Draw a card from the top of the deck.
@@ -42,7 +43,7 @@ class Deck:
         Returns:
             The top card from the deck, or None if the deck is empty.
         """
-        return self.cards.pop() if self.cards else None
+        return self._cards.pop() if self._cards else None
 
     def return_cards(self, cards: List[BaseCard]):
         """Return a list of cards back to the deck.
@@ -50,4 +51,28 @@ class Deck:
         Args:
             cards: List of cards to return to the deck.
         """
-        self.cards += cards
+        self._cards += cards
+
+    def __iter__(self):
+        """Provide an iterator over the cards in the deck.
+
+        Returns:
+            An iterator for the deck's cards.
+        """
+        return iter(self._cards)
+
+    def __len__(self):
+        """Get the number of cards currently in the deck.
+
+        Returns:
+            The count of cards in the deck.
+        """
+        return len(self._cards)
+
+    def __str__(self):
+        """Provide a string representation of the deck.
+
+        Returns:
+            A string listing all cards in the deck.
+        """
+        return " ".join([str(card) for card in self._cards])

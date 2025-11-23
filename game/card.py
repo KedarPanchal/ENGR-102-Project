@@ -7,7 +7,11 @@ class BaseCard(ABC):
     This class serves as the foundation for all card implementations,
     ensuring a consistent interface across different card types.
     """
-    pass
+
+    @abstractmethod
+    def __str__(self) -> str:
+        """Provide a string representation of the card."""
+        return ""
 
 
 class AddableCard(BaseCard):
@@ -15,7 +19,7 @@ class AddableCard(BaseCard):
 
     This class defines the interface for cards that have a numeric value
     that can be used in score calculations.
-    
+
     Attributes:
         _value: The numeric value of the card.
     """
@@ -35,6 +39,14 @@ class AddableCard(BaseCard):
             The card's numeric value.
         """
         return self._value
+
+    def __str__(self):
+        """Provide a string representation of the card.
+
+        Returns:
+            A string showing the card's value.
+        """
+        return f"{self._value}"
 
 
 class NumberCard(AddableCard):
@@ -72,7 +84,7 @@ class ScoreModifierCard(AddableCard):
 
     These cards affect the scoring mechanism of the game when played.
     They can either add to or multiply the player's score.
-    
+
     Attributes:
         _value: The modifier value (inherited from AddableCard).
         _is_addition: Whether this card adds (True) or multiplies (False).
@@ -96,6 +108,14 @@ class ScoreModifierCard(AddableCard):
         """
         return self._is_addition
 
+    def __str__(self):
+        """Provide a string representation of the score modifier card.
+
+        Returns:
+            A string showing the modifier type and value.
+        """
+        return f"{"+" if self._is_addition else "x"}{self._value}"
+
 
 class ActionCard(BaseCard):
     """Represents a card that triggers special actions when drawn.
@@ -112,4 +132,3 @@ class ActionCard(BaseCard):
             targeted_player: The player affected by the action.
         """
         pass
-
