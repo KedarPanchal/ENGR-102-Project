@@ -1,8 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from .player import Player
+from .player import Player
 
 
 class BaseCard(ABC):
