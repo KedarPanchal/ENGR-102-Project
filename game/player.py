@@ -85,7 +85,7 @@ class Player:
         """
         return len({card for card in self.hand if isinstance(card, NumberCard)}) == 7
 
-    def add_bonus(self):
+    def add_bonus(self) -> None:
         """Add a bonus to the player's score if they have seven unique cards.
 
         Awards 15 bonus points if the player has exactly seven unique number
@@ -94,7 +94,7 @@ class Player:
         if self.has_seven() and not self.is_busted():
             self._score += 15
 
-    def update_score(self):
+    def update_score(self) -> None:
         """Calculate and update the player's score based on cards in hand.
 
         Applies all score modifiers (multipliers first, then additions) and

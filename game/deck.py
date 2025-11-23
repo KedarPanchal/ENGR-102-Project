@@ -1,6 +1,5 @@
 from .card import BaseCard, NumberCard, ScoreModifierCard
-from typing import List
-from functools import reduce
+from typing import List, Iterator
 import random
 
 
@@ -33,11 +32,11 @@ class Deck:
 
         # TODO: Add ActionCards when their implementation is complete
 
-    def shuffle(self):
+    def shuffle(self) -> None:
         """Randomly shuffle the cards in the deck."""
         random.shuffle(self._cards)
 
-    def take_card(self):
+    def take_card(self) -> BaseCard | None:
         """Draw a card from the top of the deck.
 
         Returns:
@@ -45,7 +44,7 @@ class Deck:
         """
         return self._cards.pop() if self._cards else None
 
-    def return_cards(self, cards: List[BaseCard]):
+    def return_cards(self, cards: List[BaseCard]) -> None:
         """Return a list of cards back to the deck.
 
         Args:
@@ -53,7 +52,7 @@ class Deck:
         """
         self._cards += cards
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[BaseCard]:
         """Provide an iterator over the cards in the deck.
 
         Returns:
@@ -61,7 +60,7 @@ class Deck:
         """
         return iter(self._cards)
 
-    def __len__(self):
+    def __len__(self) -> int:
         """Get the number of cards currently in the deck.
 
         Returns:
@@ -69,7 +68,7 @@ class Deck:
         """
         return len(self._cards)
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Provide a string representation of the deck.
 
         Returns:

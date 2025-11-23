@@ -1,4 +1,8 @@
 from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .player import Player
 
 
 class BaseCard(ABC):
@@ -32,7 +36,7 @@ class AddableCard(BaseCard):
         """
         self._value = value
 
-    def value(self):
+    def value(self) -> int:
         """Get the numeric value of the card.
 
         Returns:
@@ -40,7 +44,7 @@ class AddableCard(BaseCard):
         """
         return self._value
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Provide a string representation of the card.
 
         Returns:
@@ -57,7 +61,7 @@ class NumberCard(AddableCard):
     Players must collect exactly seven unique number cards without duplicates.
     """
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         """Compute hash based on the card's value.
 
         Returns:
@@ -65,7 +69,7 @@ class NumberCard(AddableCard):
         """
         return hash(self._value)
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         """Check equality with another card.
 
         Args:
@@ -100,7 +104,7 @@ class ScoreModifierCard(AddableCard):
         super().__init__(modifier)
         self._is_addition = is_addition
 
-    def is_addition(self):
+    def is_addition(self) -> bool:
         """Check if the card is an addition modifier.
 
         Returns:
@@ -108,13 +112,13 @@ class ScoreModifierCard(AddableCard):
         """
         return self._is_addition
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Provide a string representation of the score modifier card.
 
         Returns:
             A string showing the modifier type and value.
         """
-        return f"{"+" if self._is_addition else "x"}{self._value}"
+        return f"{'+' if self._is_addition else 'x'}{self._value}"
 
 
 class ActionCard(BaseCard):
@@ -125,7 +129,7 @@ class ActionCard(BaseCard):
     """
 
     @abstractmethod
-    def action(self, targeted_player):
+    def action(self, targeted_player: 'Player') -> None:
         """Perform the action associated with this card.
 
         Args:
