@@ -28,10 +28,10 @@ class Player:
         Args:
             id: Unique identifier for this player.
         """
-        self.id = id
+        self._id = id
         self._score = 0
-        self.hand: List[BaseCard] = []
-        self.active = True
+        self._hand: List[BaseCard] = []
+        self._active = True
 
     def hit(self, deck: Deck) -> bool:
         """Draw a card from the deck and add it to the player's hand.
@@ -45,14 +45,14 @@ class Player:
         Returns:
             True if a card was successfully drawn, False otherwise.
         """
-        if not self.active:
+        if not self._active:
             return False
 
         card = deck.take_card()
         if not card:
             return False
 
-        self.hand.append(card)
+        self._hand.append(card)
         if isinstance(card, ActionCard):
             # TODO: Make the target player an actual targeted player
             card.action(self)
@@ -65,7 +65,7 @@ class Player:
         Marks the player as inactive and calculates their final score
         based on the cards in their hand.
         """
-        self.active = False
+        self._active = False
         self.update_score()
 
     def is_busted(self) -> bool:
@@ -74,7 +74,7 @@ class Player:
         Returns:
             True if the player has duplicate NumberCards, False otherwise.
         """
-        number_cards = [card for card in self.hand if isinstance(card, NumberCard)]
+        number_cards = [card for card in self._hand if isinstance(card, NumberCard)]
         return len(number_cards) != len((set(number_cards)))
 
     def has_seven(self) -> bool:
@@ -83,7 +83,7 @@ class Player:
         Returns:
             True if the player has seven unique NumberCards, False otherwise.
         """
-        return len({card for card in self.hand if isinstance(card, NumberCard)}) == 7
+        return len({card for card in self._hand if isinstance(card, NumberCard)}) == 7
 
     def add_bonus(self) -> None:
         """Add a bonus to the player's score if they have seven unique cards.
@@ -102,7 +102,7 @@ class Player:
         """
         total_multiplier = 1
         total_addition = 0
-        for card in self.hand:
+        for card in self._hand:
             if not isinstance(card, AddableCard):
                 continue
             if isinstance(card, ScoreModifierCard):
@@ -122,9 +122,9 @@ class Player:
         Returns:
             The list of cards that were in the player's hand.
         """
-        self.active = True
-        discarded_hand = self.hand[:]
-        self.hand = []
+        self._active = True
+        discarded_hand = self._hand[:]
+        self._hand = []
         return discarded_hand
 
     def won_game(self) -> bool:
@@ -141,7 +141,7 @@ class Player:
         Returns:
             Iterator over the cards in the player's hand.
         """
-        return iter(self.hand)
+        return iter(self._hand)
 
     def __str__(self) -> str:
         """Provide a string representation of the player.
@@ -149,7 +149,7 @@ class Player:
         Returns:
             A string showing the player's ID and current score.
         """
-        ret_str = f"Player {self.id} Score: {self._score}\nHand: "
-        ret_str += " ".join([str(card) for card in self.hand])
+        ret_str = f"Player {self._id} Score: {self._score}\nHand: "
+        ret_str += " ".join([str(card) for card in self._hand])
 
         return ret_str.strip()
