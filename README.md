@@ -20,36 +20,38 @@ For example, every Player in the game needs:
 
 The class is the blueprint, and when we actually create a player in our game (like "Player 1" or "Player 2"), we call that an **instance** or **object** of the class.
 
-## Class Hierarchy: How Cards Are Organized
+### Class Hierarchy: The Card Family Tree
 
-In Flip 7, we have different types of cards, and they're organized in a hierarchy (like a family tree). This helps us organize our code and avoid repeating ourselves.
+In Flip 7, we have different types of cards. To keep things organized, we arrange them in a hierarchy, much like a family tree. This allows different cards to share common traits without us having to write the same code over and over.
 
 ```
-BaseCard (the "grandparent" - all cards start here)
-├── AddableCard (cards that have numeric values)
-│   ├── NumberCard (cards numbered 0-12)
-│   └── ScoreModifierCard (cards that add or multiply your score)
-└── ActionCard (cards that trigger special effects)
+BaseCard (The Ancestor - all cards come from here)
+├── AddableCard (Cards with numbers)
+│   ├── NumberCard (0-12)
+│   └── ScoreModifierCard (+2, +10, x2, etc.)
+└── ActionCard (Special effect cards)
 ```
 
 **Why organize cards this way?**
 
-Imagine if you had to write separate code for every single card type without any shared structure. You'd write the same code over and over! Instead, we use **inheritance** - a fancy word that means "child classes inherit traits from parent classes."
+Imagine you're defining vehicles. A "Car" and a "Truck" are different, but they both share traits of a "Vehicle" (like having wheels and an engine).
 
-- **BaseCard** is the foundation - it says "this is a card in our game"
-- **AddableCard** inherits from BaseCard and adds the concept of having a numeric value
-- **NumberCard** and **ScoreModifierCard** both inherit from AddableCard because they both have values that affect scoring
-- **ActionCard** inherits directly from BaseCard because it doesn't have a value - it just does something special
+- **BaseCard** is like "Vehicle" - it defines what it means to be a card.
+- **AddableCard** is a specific category of cards that have numbers.
+- **NumberCard** and **ScoreModifierCard** are specific types of AddableCards.
+- **ActionCard** is a different branch for cards that *do* things rather than just having a value.
+
+This structure (called **inheritance**) lets us say "A NumberCard is a type of AddableCard, which is a type of BaseCard."
 
 ## The Classes Explained
 
 ### Card Classes
 
 #### `BaseCard`
-The foundation of all cards in the game. This is an abstract class, meaning you never create a BaseCard directly - it just defines that something "is a card." Think of it as saying "all cards in this game must follow certain rules."
+The "concept" of a card. You can't actually hold a "BaseCard" in your hand—it's just a template that says "every card must be able to show itself as a text string." In programming terms, this is an **abstract class**.
 
 #### `AddableCard`
-A special type of card that has a numeric value. This class inherits from BaseCard and adds the ability to store and retrieve a number. Both NumberCards and ScoreModifierCards need numeric values, so they both build upon this class.
+A category for cards that have a number value. It builds on `BaseCard` by adding a `value` property. Both `NumberCard` and `ScoreModifierCard` belong to this category because they both contribute numbers to the game.
 
 #### `NumberCard`
 The main cards in the game, numbered from 0 to 12. These are the cards you collect to try to get seven unique ones. The deck contains different quantities of each number (twelve 12s, eleven 11s, down to one 1, and one 0). These cards:
@@ -69,10 +71,13 @@ Special cards that change how your score is calculated. These cards:
 **Example:** If you have number cards totaling 20 points and draw a +10 modifier, you'd score 30 points.
 
 #### `ActionCard`
-Cards that trigger special effects when drawn, targeting any active player. These cards don't have values but perform actions like:
-- **Freeze:** Immediately locks a player out and banks their current score
-- **Flip Three:** Forces a player to draw three more cards
-- **Second Chance:** Protects against one duplicate (saves you from busting once)
+Cards that trigger special effects when drawn. These cards don't have values but perform specific actions. We have three specific types of action cards:
+
+- **`FreezeCard`**: Immediately locks a targeted player out of the round and banks their current score.
+- **`FlipThreeCard`**: Forces a targeted player to draw three more cards from the deck.
+- **`SecondChanceCard`**: Gives the player a "second chance" token that protects them from busting once.
+
+When a player draws an action card (except Second Chance), they get to choose which opponent to target!
 
 ### Game Management Classes
 
@@ -95,12 +100,15 @@ Represents each person playing the game. The Player class:
 - Maintains their current score (stored privately as `_score`)
 - Holds their hand of cards
 - Knows if they're still active in the current round
+- Knows who their opponents are (to target them with action cards)
 - Can perform actions like:
-  - **Hit:** Draw a card from the deck
+  - **Hit:** Draw a card from the deck. If it's an action card, it might trigger immediately!
   - **Stay:** End their turn and lock in their score
+  - **Take Action:** When drawing an action card, choose an opponent to target (requires user input!)
   - **Check for bust:** See if they drew duplicate NumberCards
   - **Check for seven:** See if they collected seven unique NumberCards
-  - **Calculate score:** Determine points based on their cards
+  - **Update score:** Calculate points based on their cards (number cards + modifiers)
+  - **Check for game win:** See if their total score has reached 200
 
 The Player class also handles the special rule that drawing seven unique NumberCards awards a 15-point bonus!
 
@@ -151,14 +159,16 @@ This is the essence of **Object-Oriented Programming (OOP)** - organizing code a
 
 ## Special Methods: Making Objects Work Like Built-in Types
 
-You may have noticed some methods in our classes with double underscores on each side, like `__init__`, `__str__`, or `__eq__`. These are called **special methods** (or "dunder methods" - short for "double underscore"). They're Python's way of letting us customize how our objects behave in certain situations.
+You might notice some funny-looking methods with double underscores, like `__init__` or `__str__`. These are **Special Methods** (often called "dunder" methods for **d**ouble **under**score).
 
-Think of special methods like teaching your custom objects to speak Python's language. They allow you to:
-- Print your objects in a readable way
-- Compare them to each other
-- Loop through them
-- Get their length
-- And much more!
+Think of them as the "magic words" that let your custom objects behave like built-in Python things.
+
+For example:
+- `__str__` tells Python how to print your object nicely.
+- `__eq__` tells Python how to check if two objects are equal (`==`).
+- `__len__` tells Python what to do when you ask for the `len()` of your object.
+
+Without these, your objects would feel clunky. With them, they feel like a natural part of the language!
 
 Let's look at the special methods we use in our Flip 7 game:
 
