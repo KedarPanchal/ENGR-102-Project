@@ -34,6 +34,22 @@ classDiagram
     }
     BaseCard <|-- ActionCard
 
+    class FreezeCard {
+        +__str__(self) str
+    }
+    ActionCard <|-- FreezeCard
+
+    class SecondChanceCard {
+        +__str__(self) str
+    }
+    ActionCard <|-- SecondChanceCard
+
+    class FlipThreeCard {
+        +__str__(self) str
+    }
+    ActionCard <|-- FlipThreeCard
+    FlipThreeCard ..> Deck: "Takes cards from"
+
 
     class Deck {
         -_cards: List[BaseCard]
@@ -45,7 +61,7 @@ classDiagram
         +__len__(self) int
         +__str__(self) str
     }
-    BaseCard ..> "Managed by" Deck
+    BaseCard ..> Deck: "Managed by" 
 
 
     class Player {
@@ -65,7 +81,9 @@ classDiagram
         +__iter__(self) Iterator[BaseCard]
         +__str__(self) str
     } 
-    Deck ..> "Gives cards to on hit" Player
-    Player ..> "Returns cards on reset to" Deck
-    BaseCard ..> "Held by" Player
+    Deck ..> Player: "Gives cards to on hit" 
+    Player ..> Deck: "Returns cards on reset to" 
+    BaseCard ..> Player: "Held by" 
+    ActionCard ..> Player: "Targets" 
+    Player ..> AddableCard: "Calculates score using"
 ```
