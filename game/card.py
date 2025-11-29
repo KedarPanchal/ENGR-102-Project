@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from .player import Player
+from .deck import Deck
 
 
 class BaseCard(ABC):
@@ -133,3 +134,70 @@ class ActionCard(BaseCard):
             targeted_player: The player affected by the action.
         """
         pass
+
+
+class FreezeCard(ActionCard):
+    """Represents a Freeze action card that skips a player's next turn."""
+
+    def action(self, targeted_player: Player) -> None:
+        """Skip the targeted player's next turn.
+
+        Args:
+            targeted_player: The player to be frozen.
+        """
+        targeted_player.stay()
+
+    def __str__(self) -> str:
+        """Provide a string representation of the Freeze card.
+
+        Returns:
+            A string indicating this is a Freeze card.
+        """
+        return "Freeze!"
+
+
+class SecondChanceCard(ActionCard):
+    """Represents a Second Chance action card that allows a player to draw again."""
+
+    def action(self, targeted_player: Player) -> None:
+        """Allow the targeted player to draw another card.
+
+        Args:
+            targeted_player: The player who gets a second chance.
+        """
+        targeted_player.add_second_chance()
+
+    def __str__(self) -> str:
+        """Provide a string representation of the Second Chance card.
+
+        Returns:
+            A string indicating this is a Second Chance card.
+        """
+        return "Second Chance!"
+
+
+class FlipThreeCard(ActionCard):
+    def __init__(self, deck: Deck) -> None:
+        """Initialize a Flip Three action card with a reference to the deck."""
+        self._deck = deck
+
+    def action(self, targeted_player: Player) -> None:
+        """Force the targeted player to flip three cards.
+
+        Args:
+            targeted_player: The player who must flip three cards.
+        """
+        action_card_stack = []
+        for _ in range(3):
+            card = self._deck.take_card()
+            if not card:
+                break
+            if isinstance(card, ActionCard):
+                action_card_stack.append(card)
+            else:
+                targeted_player.receive_card(card)
+                if targeted_player.is_busted() or targeted_player.has_seven():
+                    break
+        while action_card_stack:
+            action_card = action_card_stack.pop()
+            targeted_player.take_action(action_card)

@@ -1,9 +1,7 @@
-from game.player import *
-from game.card import *
-from game.deck import *
-#importing classes of game methods
+from game.player import Player
 
-#using file methods to display the rules of the game
+
+# using file methods to display the rules of the game
 def displayrules():
     '''Read and display the file with Flip 7 rules for players'''
     rules = open('Flip7Rules.txt', 'r')
@@ -19,7 +17,7 @@ def startround(players):
     currentplayernum = 1
     game = True
     while (game):
-        currentplayer = listofplayers[currentplayer-1]
+        currentplayer = listofplayers[currentplayernum - 1]
         choice = input(f"Player {currentplayernum}, would you like to hit or pass?")
         if (choice.lower() == "hit"):
             currentplayer.hit()
@@ -36,11 +34,11 @@ def startround(players):
 
 def calculatescore():
     pass
-    
+
 
 displayrules()
 
-#Make sure the player count is within 3-18
+# Make sure the player count is within 3-18
 player_count = int(input("Enter the number of players: "))
 while player_count < 3 or player_count > 18:
     player_count = int(input("Invalid player count (must be 3-18). Enter new player count: "))

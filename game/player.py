@@ -3,7 +3,8 @@ from .card import (
     BaseCard,
     NumberCard,
     ScoreModifierCard,
-    ActionCard
+    ActionCard,
+    SecondChanceCard
 )
 from .deck import Deck
 from typing import List, Iterator
@@ -32,6 +33,19 @@ class Player:
         self._score = 0
         self._hand: List[BaseCard] = []
         self._active = True
+        self._opponents = []
+        self._second_chance = False
+
+    def set_opponents(self, opponents) -> None:
+        """Set the list of opponent players.
+
+        Args:
+            opponents: List of other Player instances in the game.
+        """
+
+        for opponent in opponents:
+            if opponent._id != self._id:
+                self._opponents.append(opponent)
 
     def hit(self, deck: Deck) -> bool:
         """Draw a card from the deck and add it to the player's hand.
@@ -54,10 +68,37 @@ class Player:
 
         self._hand.append(card)
         if isinstance(card, ActionCard):
-            # TODO: Make the target player an actual targeted player
-            card.action(self)
+            if isinstance(card, SecondChanceCard):
+                card.action(self)
+            else:
+                self.take_action(card)
 
         return True
+
+    def take_action(self, action_card: ActionCard) -> None:
+        """Execute the action of an ActionCard on this player.
+
+        Args:
+            action_card: The ActionCard to be executed.
+        """
+        targeted_player = None
+        while True:
+            targeted_id = input("Select a player ID to target with the action card: ")
+            if not targeted_id.isdigit():
+                print("Invalid input. Please enter a numeric player ID.")
+                continue
+
+            targeted_id = int(targeted_id)
+            matching_ids = [opponent._id for opponent in self._opponents if opponent._id == targeted_id]
+            # None or multiple matches
+            if len(matching_ids) != 1:
+                print("No matching player found. Please try again.")
+
+            targeted_player = matching_ids[0]
+            break
+
+        if targeted_player:
+            action_card.action(targeted_player)
 
     def stay(self) -> None:
         """End the player's turn and finalize their score for the round.
@@ -75,7 +116,7 @@ class Player:
             True if the player has duplicate NumberCards, False otherwise.
         """
         number_cards = [card for card in self._hand if isinstance(card, NumberCard)]
-        return len(number_cards) != len((set(number_cards)))
+        return not self._second_chance and (len(number_cards) != len((set(number_cards))))
 
     def has_seven(self) -> bool:
         """Check if the player has exactly seven unique number cards.
@@ -123,9 +164,34 @@ class Player:
             The list of cards that were in the player's hand.
         """
         self._active = True
+        self._second_chance = False
         discarded_hand = self._hand[:]
         self._hand = []
         return discarded_hand
+
+    def has_second_chance(self) -> bool:
+        """Check if the player has a second chance available.
+
+        Returns:
+            True if the player has a second chance, False otherwise.
+        """
+        return self._second_chance
+
+    def add_second_chance(self) -> None:
+        """Grant the player a second chance to avoid busting."""
+        self._second_chance = True
+
+    def use_second_chance(self) -> None:
+        """Consume the player's second chance."""
+        self._second_chance = False
+
+    def receive_card(self, card: BaseCard) -> None:
+        """Add a card to the player's hand.
+
+        Args:
+            card: The card to be added to the player's hand.
+        """
+        self._hand.append(card)
 
     def won_game(self) -> bool:
         """Check if the player has won the game.
