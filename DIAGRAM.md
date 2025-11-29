@@ -30,6 +30,7 @@ classDiagram
     AddableCard <|-- ScoreModifierCard
 
     class ActionCard {
+        -deck: Deck
         +action(self, targeted_player) None
     }
     BaseCard <|-- ActionCard
@@ -69,7 +70,10 @@ classDiagram
         -_score: int
         -_hand: List[BaseCard]
         -_active: bool
+        -_opponents: List[Player]
+        -_second_chance: bool
         +__init__(self, id) None
+        +set_opponents(self, opponents) None
         +hit(self, deck) None
         +stay(self) None
         +is_busted(self) bool
@@ -77,6 +81,11 @@ classDiagram
         +add_bonus(self) None
         +update_score(self) None
         +reset(self) List[BaseCard]
+        ~take_action(self, card) None
+        ~has_second_chance(self) bool
+        ~add_second_chance(self) None
+        ~use_second_chance(self) None
+        ~receive_card(self, card) None
         +won_game(self) bool
         +__iter__(self) Iterator[BaseCard]
         +__str__(self) str
