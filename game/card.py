@@ -201,3 +201,11 @@ class FlipThreeCard(ActionCard):
         while action_card_stack:
             action_card = action_card_stack.pop()
             targeted_player.take_action(action_card)
+
+    def __str__(self) -> str:
+        """Provide a string representation of the Flip Three card.
+
+        Returns:
+            A string indicating this is a Flip Three card.
+        """
+        return "Flip Three!"

@@ -30,7 +30,6 @@ classDiagram
     AddableCard <|-- ScoreModifierCard
 
     class ActionCard {
-        -deck: Deck
         +action(self, targeted_player) None
     }
     BaseCard <|-- ActionCard
@@ -46,6 +45,8 @@ classDiagram
     ActionCard <|-- SecondChanceCard
 
     class FlipThreeCard {
+        -_deck Deck
+        +__init__(self, deck) None
         +__str__(self) str
     }
     ActionCard <|-- FlipThreeCard

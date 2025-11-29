@@ -1,4 +1,11 @@
-from .card import BaseCard, NumberCard, ScoreModifierCard
+from .card import (
+        BaseCard,
+        NumberCard,
+        ScoreModifierCard,
+        FreezeCard,
+        SecondChanceCard,
+        FlipThreeCard
+)
 from typing import List, Iterator
 import random
 
@@ -21,16 +28,19 @@ class Deck:
         - ActionCards: To be added when their implementation is complete
         """
         self._cards: List[BaseCard] = []
+        # Add NumberCards
         for number in range(1, 13):
             for _ in range(number):
                 self._cards.append(NumberCard(number))
         self._cards.append(NumberCard(0))
-
+        # Add ScoreModifierCards
         for i in range(2, 11):
             self._cards.append(ScoreModifierCard(i, True))
         self._cards.append(ScoreModifierCard(2, False))
-
-        # TODO: Add ActionCards when their implementation is complete
+        # Add ActionCards
+        self._cards.append(FreezeCard())
+        self._cards.append(SecondChanceCard())
+        self._cards.append(FlipThreeCard(self))
 
     def shuffle(self) -> None:
         """Randomly shuffle the cards in the deck."""
