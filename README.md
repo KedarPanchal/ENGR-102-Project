@@ -87,7 +87,7 @@ Manages the collection of all cards used in the game. The Deck class:
 - Contains the correct quantities of each card type:
   - Number cards: twelve 12s, eleven 11s, ten 10s, down to one 1, plus one 0
   - Score modifiers: one of each from +2 to +10, plus one x2 multiplier
-  - Action cards: (to be added when implemented)
+  - Action cards: one of each type (Freeze, Flip Three, Second Chance)
 - Can shuffle the cards randomly
 - Allows players to draw cards from the top
 - Can accept returned cards (when rounds end and cards are discarded)
