@@ -48,9 +48,31 @@ class UI:
         self._manager.add(hand_window, assign="hand")
         self._manager.add(self._input_window, assign="input")
 
+        # Input handling
+        self._input_field.bind(ptg.keys.ENTER, self._handle_input)
+        self._input_field.bind(ptg.keys.RETURN, self._handle_input)
+        self._input_queue = asyncio.Queue(maxsize=1)
+
         # Asynchronous class variables
         self._manager_process = None
         self._shutdown_event = asyncio.Event()
+
+    def _handle_input(self, widget: ptg.InputField, key):
+        """Handle input field key events.
+
+        If the Enter key is pressed, retrieves the input value,
+        clears the input field, and processes the command.
+
+        Args:
+            widget: The input field widget.
+            key: The key event.
+        """
+        if self._input_queue.full() or widget.value.strip() == "":
+            return True
+        command = widget.value
+        widget.delete_back(len(command))
+        self._input_queue.put_nowait(command)
+        return True
 
     async def run(self):
         """Start the UI manager and wait for shutdown signal.
@@ -69,12 +91,12 @@ class UI:
         self._manager.focus(self._input_window)
         self._input_field.select()
         self._manager_process = asyncio.create_task(asyncio.to_thread(self._manager.run))
-        
+
         try:
             await self._shutdown_event.wait()
         except KeyboardInterrupt:
             pass
-        
+
         self._manager.stop()
         self._manager_process.cancel()
         try:
@@ -91,6 +113,18 @@ class UI:
         to gracefully terminate the UI.
         """
         self._shutdown_event.set()
+
+    async def input(self):
+        """Asynchronously retrieve user input from the input field.
+
+        Waits for the user to enter a command and press Enter, then
+        returns the command as a string.
+
+        Returns:
+            str: The user-entered command.
+        """
+        command = await self._input_queue.get()
+        return command
 
 
 # Test code goes here
