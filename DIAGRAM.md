@@ -75,6 +75,7 @@ classDiagram
         -_second_chance: bool
         +__init__(self, id) None
         +set_opponents(self, opponents) None
+        +is_active(self) bool
         +hit(self, deck) None
         +stay(self) None
         +is_busted(self) bool
