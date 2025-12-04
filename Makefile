@@ -1,3 +1,5 @@
+VENV := venv/bin/activate
+
 .PHONY: help all build run clean ui
 
 help:
@@ -11,7 +13,9 @@ help:
 
 all: clean build run
 
-build:
+build: $(VENV)
+
+$(VENV):
 	@echo "Creating virtual environment..."
 	python3 -m venv venv
 	source venv/bin/activate
