@@ -1,0 +1,2 @@
+keyboard>=0.13.5
+PyTermGUI>=7.7.4
