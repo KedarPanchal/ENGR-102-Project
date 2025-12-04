@@ -18,7 +18,7 @@ build: $(VENV)
 $(VENV):
 	@echo "Creating virtual environment..."
 	python3 -m venv venv
-	source venv/bin/activate
+	. $(VENV)
 	@echo "Upgrading pip..."
 	python3 -m pip install --upgrade pip
 	@echo "Installing dependencies..."
@@ -26,7 +26,7 @@ $(VENV):
 
 run:
 	@echo "Entering virtual environment..."
-	source venv/bin/activate
+	. $(VENV)
 	@echo "Running the project..."
 	python3 main.py
 
@@ -39,6 +39,6 @@ clean:
 
 ui:
 	@echo "Entering virtual environment..."
-	source venv/bin/activate
+	. $(VENV)
 	@echo "Running UI tests..."
 	python3 -m tui.ui
