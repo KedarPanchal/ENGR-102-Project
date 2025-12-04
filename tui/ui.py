@@ -1,6 +1,8 @@
 import pytermgui as ptg
 import asyncio
-import signal
+import io
+import keyboard
+from typing import List, Optional
 
 
 class UI:
@@ -16,7 +18,6 @@ class UI:
         _input_field: The input field for user commands.
         _input_window: The window containing the input field.
         _manager_process: The asyncio task running the UI manager.
-        _shutdown_event: Event used to signal UI shutdown.
     """
 
     def __init__(self):
@@ -38,40 +39,50 @@ class UI:
         self._layout.add_slot("input", height=5)
 
         # Initialize windows
-        main_window = ptg.Window(title="[210 bold]Game Info")
-        hand_window = ptg.Window(title="[210 bold] Current Player's Hand")
+        self._main_window = ptg.Window(title="[210 bold]Game Info")
+        self._hand_window = ptg.Window(title="[210 bold] Current Player's Hand")
         self._input_field = ptg.InputField(prompt="> ")
         self._input_window = ptg.Window(self._input_field)
 
         # Add windows
-        self._manager.add(main_window, assign="main")
-        self._manager.add(hand_window, assign="hand")
+        self._manager.add(self._main_window, assign="main")
+        self._manager.add(self._hand_window, assign="hand")
         self._manager.add(self._input_window, assign="input")
 
         # Input handling
         self._input_field.bind(ptg.keys.ENTER, self._handle_input)
         self._input_field.bind(ptg.keys.RETURN, self._handle_input)
-        self._input_queue = asyncio.Queue(maxsize=1)
+        self._input_queue = None
 
         # Asynchronous class variables
+        self._loop = None
         self._manager_process = None
-        self._shutdown_event = asyncio.Event()
+        self._running = asyncio.Event()
 
     def _handle_input(self, widget: ptg.InputField, key):
         """Handle input field key events.
 
         If the Enter key is pressed, retrieves the input value,
         clears the input field, and processes the command.
+        This function doesn't actually manage the keypresses, but is
+        called by pytermgui when the appropriate key is detected.
 
         Args:
             widget: The input field widget.
             key: The key event.
+        Returns:
+            bool: True, since the input was handled.
         """
-        if self._input_queue.full() or widget.value.strip() == "":
+        command = widget.value.strip()
+        widget.delete_back(len(widget.value))
+
+        if not self._loop or not self._input_queue:
             return True
-        command = widget.value
-        widget.delete_back(len(command))
-        self._input_queue.put_nowait(command)
+
+        if self._input_queue.full() or command == "":
+            return True
+
+        self._loop.call_soon_threadsafe(self._input_queue.put_nowait, command)
         return True
 
     async def run(self):
@@ -88,31 +99,42 @@ class UI:
         if self._manager_process:
             return
 
+        self._loop = asyncio.get_running_loop()
+        self._input_queue = asyncio.Queue(maxsize=1)
+
         self._manager.focus(self._input_window)
         self._input_field.select()
         self._manager_process = asyncio.create_task(asyncio.to_thread(self._manager.run))
+        self._running.set()
 
-        try:
-            await self._shutdown_event.wait()
-        except KeyboardInterrupt:
-            pass
+    async def wait_until_running(self):
+        """Wait until the UI manager is fully running.
 
-        self._manager.stop()
-        self._manager_process.cancel()
-        try:
-            await self._manager_process
-        except asyncio.CancelledError:
-            pass
-        self._manager_process = None
+        This method can be used to ensure that the UI is ready before
+        performing operations that depend on the UI being active.
+        """
+        await self._running.wait()
 
-    def stop(self):
+    async def stop(self):
         """Signal the UI to shut down.
 
         Sets the shutdown event, which triggers the cleanup process in run().
         This method can be called from signal handlers or other contexts
         to gracefully terminate the UI.
         """
-        self._shutdown_event.set()
+        if not self._manager_process:
+            return
+
+        self._running.clear()
+        self._manager.stop()
+        self._manager_process.cancel()
+        try:
+            await self._manager_process
+        except asyncio.CancelledError:
+            pass
+
+        self._manager_process = None
+        keyboard.press_and_release("enter")  # Wake up input field if waiting
 
     async def input(self):
         """Asynchronously retrieve user input from the input field.
@@ -123,21 +145,69 @@ class UI:
         Returns:
             str: The user-entered command.
         """
+        if not self._input_queue:
+            raise RuntimeError("UI is not running. Call run() before input().")
+
         command = await self._input_queue.get()
         return command
 
+    def println(self, *args: str, fmts: Optional[List[str]] = None, window: str = "main", sep: str = " "):
+        """Prints a line of text to a window.
+        Args:
+            *args: The strings to print.
+            fmts: Optional list of format strings for each argument.
+                If not provided or empty, defaults to white text.
+                If the number of formats is less than the number of arguments,
+                the last format is applied to the remaining arguments.
+            window: The window to print to ("main" or "hand").
+                If not provided, defaults to "main".
+            sep: The separator to use between arguments.
+                If not provided, defaults to a single space.
+        Raises:
+            ValueError: If the number of formats exceeds the number of arguments
+                or if an unknown window is specified.
+        """
+
+        # Default format is white text
+        if fmts is None or len(fmts) == 0:
+            fmts = ["#ffffff"] * len(args)
+
+        # Extend formats to last applied format if not enough provided
+        if len(fmts) < len(args):
+            fmts += fmts[-1] * (len(args) - len(fmts))
+
+        if len(fmts) > len(args):
+            raise ValueError("Number of formats must be less than or equal to number of arguments")
+
+        sstream = io.StringIO()
+
+        # Write formatted arguments to string stream
+        for fmt, arg in zip(fmts, args):
+            print(f"[{fmt}]{arg}[/]", end=sep, file=sstream)
+
+        # Write to window
+        match window:
+            case "main":
+                self._main_window += ptg.Label(sstream.getvalue().rstrip(sep))
+            case "hand":
+                self._hand_window += ptg.Label(sstream.getvalue().rstrip(sep))
+            case _:
+                raise ValueError(f"Unknown window: {window}")
+
 
 # Test code goes here
-if __name__ == "__main__":
+async def main():
     ui = UI()
 
-    async def main():
-        loop = asyncio.get_running_loop()
-        # Needed for pytermgui to handle Ctrl+C properly
-        loop.add_signal_handler(signal.SIGINT, ui.stop)
-        try:
-            await ui.run()
-        finally:
-            loop.remove_signal_handler(signal.SIGINT)
+    last_input = ""
+    asyncio.create_task(ui.run())
+    await ui.wait_until_running()
+    while last_input.lower() != "exit":
+        ui.println("Enter 'exit' to quit.")
+        last_input = await ui.input()
+        ui.println("You entered:", last_input)
 
+    await ui.stop()
+
+if __name__ == "__main__":
     asyncio.run(main())
