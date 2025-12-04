@@ -34,8 +34,8 @@ clean:
 	@echo "Removing virtual environment..."
 	rm -rf venv
 	@echo "Removing build artifacts..."
-	find . -type f -name '*.pyc' -delete
-	find . -type d -name '__pycache__' -delete
+	find . -type f -name "*.py[co]" -delete
+	find . -type d -name "__pycache__" -exec rm -rf {} +
 
 ui:
 	@echo "Entering virtual environment..."
