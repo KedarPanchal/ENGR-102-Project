@@ -1,5 +1,6 @@
 import asyncio
 
+from game.card import ActionCard, NumberCard, ScoreModifierCard
 from game.player import Player
 from game.deck import Deck
 from tui.ui import UI
@@ -113,9 +114,18 @@ async def main():
             fmts=["magenta bold", "#ffffff"],
             window="hand"
         )
-        await ui.println("Current Hand:", fmts=["yellow bold"], window="hand")
+        await ui.println("Modifier Cards:", fmts=["yellow bold"], window="hand")
         for card in playerids[currentplayerid]:
-            await ui.println(card, window="hand")
+            if isinstance(card, ScoreModifierCard):
+                await ui.println(card, window="hand")
+        await ui.println("Number Cards", fmts=["yellow bold"], window="hand")
+        for card in playerids[currentplayerid]:
+            if isinstance(card, NumberCard):
+                await ui.println(card, window="hand")
+        await ui.println("Action Cards:", fmts=["yellow bold"], window="hand")
+        for card in playerids[currentplayerid]:
+            if isinstance(card, ActionCard):
+                await ui.println(card, window="hand")
 
         # Set hand window title
         await ui.set_title(f"Player {currentplayerid}'s Info", fmt="210 bold", window="hand")
