@@ -1,38 +1,3 @@
-import sys
-import subprocess
-import importlib.metadata as metadata
-
-
-# Dynamically install a pip package
-def install(package: str) -> None:
-    """Dynamically installs a pip package if not already installed.
-    If installation fails, prompts the user to install manually.
-    Args:
-        package: The name of the package to install.
-    """
-    print(f"Checking for package: {package}")
-    for distribution in metadata.distributions():
-        if distribution.metadata['Name'] == package:
-            print(f"Package {package} is already installed.")
-            return
-
-    print(f"Package {package} not found. Installing...")
-    try:
-        subprocess.check_call(
-            [sys.executable, "-m", "pip", "install", package],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL
-        )
-    except subprocess.CalledProcessError as e:
-        print(f"Failed to install package {package}: {e}")
-        print(f"Please install the package {package} manually and re-run the program.")
-        print(f"Installation command: {sys.executable} -m pip install {package}")
-        sys.exit(1)
-
-
-install("PyTermGUI")
-install("keyboard")
-
 import asyncio
 
 from game.player import Player
@@ -42,7 +7,11 @@ from tui.ui import UI
 
 # using file methods to display the rules of the game
 def displayrules():
-    '''Read and display the file with Flip 7 rules for players'''
+    """Read and display the file with Flip 7 rules for players.
+    Ensure that Flip7Rules.txt is in the same directory as main.py.
+     Returns:
+         The text of the rules as a string.
+     """
     rules = open('Flip7Rules.txt', 'r')
     rules_text = rules.read()
     rules.close()
@@ -50,6 +19,14 @@ def displayrules():
 
 
 def checkRoundEnd(playerdict):
+    """Check if the current round has ended.
+    A round ends when all players have either busted or chosen to stay,
+    or if any player has seven unique number cards in hand.
+    Args:
+        playerdict: Dictionary of Player objects keyed by player ID.
+    Returns:
+        True if the round has ended, False otherwise.
+    """
     for i in range(1, len(playerdict) + 1):
         if playerdict[i].is_active():
             return False
@@ -59,6 +36,10 @@ def checkRoundEnd(playerdict):
 
 
 async def main():
+    """The main function to run the Flip 7 game.
+    Initializes the UI as a background coroutine and manages the game flow.
+    This function should be run in an asynchronous event loop.
+    """
     # Initialize async variables
     ui = UI()
     asyncio.create_task(ui.run())
@@ -66,7 +47,7 @@ async def main():
 
     # Main code goes here
     await ui.println(displayrules())
-    await ui.println("Press Enter to start the game...")
+    await ui.println("\nPress Enter to start the game...")
     await ui.input()
     await ui.clear()
 
@@ -121,6 +102,10 @@ async def main():
         await ui.println(f"Score: {playerids[currentplayerid].get_score()}", window="hand")
         for card in playerids[currentplayerid]:
             await ui.println(card, window="hand")
+
+        # Set hand window title
+        await ui.set_title(f"Player {currentplayerid}'s Info", fmt="210 Bold", window="hand")
+
         # Ask player their choice for turn
         await ui.println(f"Player {currentplayerid}, would you like to hit, stay or end game")
         decision = await ui.input()
@@ -185,6 +170,8 @@ async def main():
     else:
         await ui.println(f"Player {winner.get_id()} has won the game with a score of {winner.get_score()}!")
 
+    await ui.println("\nPress Enter to exit...")
+    await ui.input()
     await ui.stop()
 
 if __name__ == "__main__":

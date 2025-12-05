@@ -42,7 +42,7 @@ class UI:
         self._main_window = ptg.Window(title="[210 bold]Game Info", overflow=ptg.Overflow.SCROLL)
         self._main_text = ptg.Label("")
         self._main_window += self._main_text
-        self._hand_window = ptg.Window(title="[210 bold] Current Player's Hand and Score", overflow=ptg.Overflow.SCROLL)
+        self._hand_window = ptg.Window(title="[210 bold] Current Player's Info", overflow=ptg.Overflow.SCROLL)
         self._hand_text = ptg.Label("")
         self._hand_window += self._hand_text
         self._input_field = ptg.InputField(prompt="> ")
@@ -139,6 +139,25 @@ class UI:
 
         self._manager_process = None
         keyboard.press_and_release("enter")  # Wake up input field if waiting
+
+    async def set_title(self, title: str, fmt: str = "#ffffff", window: str = "main"):
+        """Set the title of the main window asynchronously.
+
+        Args:
+            title: The new title for the main window.
+            fmt: The format string to apply to the title text.
+                Defaults to white text.
+        """
+        def _set_title():
+            match window:
+                case "main":
+                    self._main_window.set_title(f"[{fmt}]{title}[/]")
+                case "hand":
+                    self._hand_window.set_title(f"[{fmt}]{title}[/]")
+                case _:
+                    raise ValueError(f"Unknown window: {window}")
+
+        await asyncio.to_thread(_set_title)
 
     async def input(self):
         """Asynchronously retrieve user input from the input field.
