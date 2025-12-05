@@ -598,6 +598,9 @@ class Player:
     def use_second_chance(self) -> None:
         """Consume the player's second chance."""
         self._second_chance = False
+        other_cards = [card for card in self._hand if not isinstance(card, NumberCard)]
+        number_cards_nodupe = list({card for card in self._hand if isinstance(card, NumberCard)})
+        self._hand = other_cards + number_cards_nodupe
 
     def receive_card(self, card: BaseCard) -> None:
         """Add a card to the player's hand.
