@@ -1101,6 +1101,7 @@ async def main():
                     break
 
     await ui.clear()
+    await ui.clear(window="hand")
 
     rankings = sorted(playerids.values(), key=lambda p: p.get_score(), reverse=True)
     # Game ended early without a winner
