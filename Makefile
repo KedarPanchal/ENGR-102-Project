@@ -10,7 +10,6 @@ help:
 	@echo "  run         - Run the project"
 	@echo "  clean       - Clean build artifacts"
 	@echo "  ui          - Run UI tests"
-	@echo "  package     - Combine all game/ and tui/ Python files into fun_game.py"
 
 all: clean build run
 
