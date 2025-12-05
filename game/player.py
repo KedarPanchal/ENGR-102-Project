@@ -4,7 +4,6 @@ from .card import (
     NumberCard,
     ScoreModifierCard,
     ActionCard,
-    SecondChanceCard
 )
 from .deck import Deck
 from typing import List, Iterator
@@ -66,7 +65,7 @@ class Player:
         """
         return self._active
 
-    async def hit(self, deck: Deck) -> bool:
+    async def hit(self, deck: Deck) -> bool | BaseCard:
         """Draw a card from the deck and add it to the player's hand.
 
         If the drawn card is an ActionCard, its action is immediately executed.
@@ -78,7 +77,7 @@ class Player:
         Returns:
             True if a card was successfully drawn, False otherwise.
         """
-        if not self._active:
+        if not self._active or not self._print:
             return False
 
         card = deck.take_card()
@@ -101,7 +100,7 @@ class Player:
         """
         if not self._print or not self._input:
             return
-    
+
         targeted_player = None
         while True:
             await self._print("Select a player to target with the action card:")
@@ -154,7 +153,7 @@ class Player:
             True if the player has seven unique NumberCards, False otherwise.
         """
         return len({card for card in self._hand if isinstance(card, NumberCard)}) == 7
-    
+
     def get_score(self) -> int:
         """Get the player's current score.
 

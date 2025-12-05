@@ -41,12 +41,14 @@ class Deck:
         # self._cards.append(FreezeCard())
         # self._cards.append(SecondChanceCard())
         # self._cards.append(FlipThreeCard(self))
+
         for number in range(0, 13):
             self._cards.append(NumberCard(number))
         # Add ActionCards
         self._cards.append(FreezeCard())
         self._cards.append(SecondChanceCard())
-        self._cards.append(FlipThreeCard(self))
+        for _ in range(4):
+            self._cards.append(FlipThreeCard(self))
 
     def shuffle(self) -> None:
         """Randomly shuffle the cards in the deck."""
