@@ -129,7 +129,7 @@ class ActionCard(BaseCard):
     """
 
     @abstractmethod
-    def action(self, targeted_player: 'Player') -> None:
+    async def action(self, targeted_player: 'Player') -> None:
         """Perform the action associated with this card.
 
         Args:
@@ -137,17 +137,28 @@ class ActionCard(BaseCard):
         """
         pass
 
+    async def log(self, message: str, targeted_player: Player) -> None:
+        """Log a message to the targeted player's print callback.
+
+        Args:
+            message: The message to log.
+            targeted_player: The player whose print callback will be used.
+        """
+        if targeted_player._print:
+            await targeted_player._print(message)
+
 
 class FreezeCard(ActionCard):
     """Represents a Freeze action card that skips a player's next turn."""
 
-    def action(self, targeted_player: Player) -> None:
+    async def action(self, targeted_player: Player) -> None:
         """Skip the targeted player's next turn.
 
         Args:
             targeted_player: The player to be frozen.
         """
         targeted_player.stay()
+        await self.log(f"Player {targeted_player.get_id()} has been frozen and will skip their next turn!", targeted_player)
 
     def __str__(self) -> str:
         """Provide a string representation of the Freeze card.
@@ -161,13 +172,14 @@ class FreezeCard(ActionCard):
 class SecondChanceCard(ActionCard):
     """Represents a Second Chance action card that allows a player to draw again."""
 
-    def action(self, targeted_player: Player) -> None:
+    async def action(self, targeted_player: Player) -> None:
         """Allow the targeted player to draw another card.
 
         Args:
             targeted_player: The player who gets a second chance.
         """
         targeted_player.add_second_chance()
+        await self.log(f"Player {targeted_player.get_id()} has received a Second Chance!", targeted_player)
 
     def __str__(self) -> str:
         """Provide a string representation of the Second Chance card.
@@ -180,10 +192,13 @@ class SecondChanceCard(ActionCard):
 
 class FlipThreeCard(ActionCard):
     def __init__(self, deck: Deck) -> None:
-        """Initialize a Flip Three action card with a reference to the deck."""
+        """Initialize a Flip Three action card with a reference to the deck.
+        Args:
+            deck: The deck from which cards will be drawn.
+        """
         self._deck = deck
 
-    def action(self, targeted_player: Player) -> None:
+    async def action(self, targeted_player: Player) -> None:
         """Force the targeted player to flip three cards.
 
         Args:
@@ -192,17 +207,30 @@ class FlipThreeCard(ActionCard):
         action_card_stack = []
         for _ in range(3):
             card = self._deck.take_card()
+            # Stop if the deck is empty
             if not card:
                 break
+            # Handle action cards separately
             if isinstance(card, ActionCard):
                 action_card_stack.append(card)
             else:
                 targeted_player.receive_card(card)
-                if targeted_player.is_busted() or targeted_player.has_seven():
+                if targeted_player.is_busted():
+                    if targeted_player.has_second_chance():
+                        await self.log(f"Player {targeted_player.get_id()} has busted but is using their Second Chance!", targeted_player)
+                        targeted_player.use_second_chance()
+                    else:
+                        await self.log(f"Player {targeted_player.get_id()} has busted!", targeted_player)
+                        break
+                if targeted_player.has_seven():
+                    await self.log(f"Player {targeted_player.get_id()} has collected seven unique cards!", targeted_player)
                     break
+
+        # Execute any action cards drawn
         while action_card_stack:
             action_card = action_card_stack.pop()
-            targeted_player.take_action(action_card)
+            await self.log(f"Player {targeted_player.get_id()} flipped the card {action_card}", targeted_player)
+            await targeted_player.take_action(action_card)
 
     def __str__(self) -> str:
         """Provide a string representation of the Flip Three card.

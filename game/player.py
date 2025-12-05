@@ -57,6 +57,14 @@ class Player:
         self._print = print_
         self._input = input_
 
+    def get_id(self) -> int:
+        """Get the player's unique identifier.
+
+        Returns:
+            The player's ID.
+        """
+        return self._id
+
     def is_active(self) -> bool:
         """Check if the player is still active in the current round.
 
@@ -112,7 +120,7 @@ class Player:
             targeted_id = int(targeted_id)
             targeted_player = None
             for player in self._players:
-                if int(player._id) == targeted_id:
+                if int(player.get_id()) == targeted_id:
                     targeted_player = player
                     break
 
@@ -126,7 +134,7 @@ class Player:
             if player._id == targeted_player:
                 targeted_player = player
                 break
-        action_card.action(targeted_player)
+        await action_card.action(targeted_player)
 
     def stay(self) -> None:
         """End the player's turn and finalize their score for the round.

@@ -194,7 +194,7 @@ class UI:
 
         # Prepare the label text
         label_text = sstream.getvalue().rstrip(sep)
-        
+
         # Add widget to window in a thread-safe manner
         def _add_widget():
             match window:
@@ -204,7 +204,7 @@ class UI:
                     self._hand_text.value += label_text
                 case _:
                     raise ValueError(f"Unknown window: {window}")
-        
+
         # Run the widget addition in a thread to avoid blocking
         await asyncio.to_thread(_add_widget)
 
@@ -227,7 +227,7 @@ class UI:
                     self._hand_text.value = ""
                 case _:
                     raise ValueError(f"Unknown window: {window}")
-            
+
         # Run the window clearing in a thread to avoid blocking
         await asyncio.to_thread(_clear_window)
         self._manager.compositor.redraw()
