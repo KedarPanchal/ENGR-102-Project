@@ -1,94 +1,52 @@
-Flip 7 is a press-your-luck card game.
-Players compete to reach two hundred total points.
-Points come from number cards accumulated each round.
-Higher numbers appear more frequently within the deck.
-Drawing a duplicate number causes an immediate bust.
-Busting removes you from the round entirely.
-You score nothing if you bust at any time.
+OBJECTIVE
+Be the first player to reach 200 points across multiple rounds.
 
-If you flip seven unique number cards, you succeed.
-That success ends the round instantly for everyone.
-Achieving seven unique numbers grants fifteen bonus points.
-Action and modifier cards never count toward the seven.
+COMPONENTS (108 cards total)
+Number Cards (81): 12×12, 11×11, 10×10... 2×2, 1×1, 1×0
+Modifier Cards (15): +2 through +10 (add points), x2 (doubles number card total)
+Action Cards (12): Freeze!, Flip Three!, Second Chance!
 
-At the start, shuffle the full deck thoroughly.
-Choose one player to act as the round’s dealer.
-A pen and paper help track all running scores.
-Printable score sheets and tools exist but are optional.
+SETUP
+1. Shuffle all 108 cards into a central draw pile.
+2. Choose a dealer (rotates clockwise each round).
+3. Track scores using paper or scoresheet.
 
-The dealer begins by giving each player one card.
-All dealt cards are placed face up immediately.
-If an action card appears while dealing, pause dealing.
-Resolve the action card completely before dealing continues.
-Some players may receive several cards while others don't.
-Some may have no cards after the initial deal.
+DEALING
+1. Dealer deals one card at a time to each player.
+2. If an Action card is dealt, resolve it immediately before continuing.
+3. Continue until everyone has at least one card.
 
-When dealing ends, players take turns in order.
-Each player chooses to hit or stay on their turn.
-Hitting gives you another card drawn face up.
-Number cards sit in one row before the player.
-Modifier cards are placed above the number row.
-You may choose to stay only if you have cards.
-Staying locks in your points and ends your involvement.
-Stayed players become inactive until the round finishes.
+PLAYER TURNS (starting left of dealer, clockwise)
+Active players (not busted/stayed) choose:
 
-A number card’s value contributes directly to scoring.
-The deck contains twelve twelves and eleven elevens.
-Counts continue downward until one single one exists.
-There is also one zero worth no points.
-Zero helps by increasing your chance to reach seven.
+HIT: Draw one card
+- Number cards go in a row (count toward score and 7-unique goal)
+- Modifier cards go above row (affect score only)
+- Action cards resolve immediately
+- BUST if you draw a duplicate number (score 0 for round)
+- INSTANT WIN if you collect 7 unique numbers (round ends, +15 bonus)
 
-Modifier cards adjust points but cannot cause busts.
-Plus cards add their printed value to your total.
-Several values exist, such as plus two or plus ten.
-The x2 card doubles all number card points combined.
-After doubling, add any remaining modifier bonuses.
-You may end a round without number cards present.
-In that case, only modifier points apply unless x2.
-A lone x2 card scores nothing by itself.
+STAY: End turn voluntarily, keep all cards and points (becomes inactive)
 
-Action cards target any active player, including yourself.
-An active player means someone not busted or stayed.
-Action effects are placed above that player's number area.
+ACTION CARDS
+Freeze! - Target active player immediately ends turn, keeps current score.
 
-Freeze immediately locks the player out of the round.
-Their current total is instantly banked as final points.
+Flip Three! - Target active player draws 3 cards one at a time. Number/Modifier cards resolve normally. Action cards drawn are set aside (except Second Chance). Stop early if player busts or reaches 7 unique numbers.
 
-Flip Three forces the player to draw three cards.
-Draw them one at a time in normal sequence.
-Stop drawing if the player reaches seven unique numbers.
-Stop if the player busts by drawing a duplicate.
-All number, modifier, and action cards count toward three.
-Second Chance drawn during this process may be saved.
-Additional Freeze or Flip Three resolve after all three draws.
-They only resolve if the player has not busted already.
+Second Chance - Protects from one duplicate. When duplicate drawn, discard both cards and continue. Can only hold one at a time. If dealt a second, give to another active player without one (otherwise discard). All unused Second Chance cards discarded at round end.
 
-Second Chance protects against one duplicate number card.
-If a duplicate appears, discard Second Chance and duplicate.
-You may only keep one Second Chance at a time.
-If you draw a second, give it to another active player.
-If none are eligible, discard the second copy entirely.
-All unused Second Chance cards discard at round’s end.
+ROUND END
+Round ends when either:
+1. A player collects 7 unique number cards, OR
+2. All players have busted or stayed
 
-The round ends when all players become inactive.
-Inactive means everyone has either busted or stayed.
-A round also ends if any player flips seven uniques.
+SCORING
+Busted: 0 points
+Otherwise:
+1. Sum all number cards
+2. If x2 card: double the sum
+3. Add all +X modifier cards
+4. If 7 unique numbers: add 15-point bonus
 
-Scoring follows several clear steps at each round’s end.
-First, add together all values of collected number cards.
-If you have the x2 card, double the sum afterward.
-Next, add all modifier bonuses printed on those cards.
-Finally, add fifteen points if you reached seven uniques.
-
-After scoring, move all used cards to a discard pile.
-Do not shuffle these cards back into the deck yet.
-Pass the remaining deck clockwise to the next dealer.
-Continue rounds until the deck runs out naturally.
-When necessary, shuffle the discard pile into a new deck.
-Cards in front of players remain untouched during reshuffling.
-This includes facedown piles from busted or stayed players.
-
-The game ends when one or more players reach two hundred.
-At that moment, the player with the highest score wins.
-If tied, play an additional round to break the tie.
-Players are encouraged to enjoy the luck-driven experience.
+GAME END
+When any player reaches 200+ points, highest score(s) win(s).

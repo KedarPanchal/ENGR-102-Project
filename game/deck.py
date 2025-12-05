@@ -36,11 +36,13 @@ class Deck:
         # Add ScoreModifierCards
         for i in range(2, 11):
             self._cards.append(ScoreModifierCard(i, True))
-        self._cards.append(ScoreModifierCard(2, False))
+        for i in range(6):
+            self._cards.append(ScoreModifierCard(2, False))
         # Add ActionCards
-        self._cards.append(FreezeCard())
-        self._cards.append(SecondChanceCard())
-        self._cards.append(FlipThreeCard(self))
+        for _ in range(4):
+            self._cards.append(FreezeCard())
+            self._cards.append(SecondChanceCard())
+            self._cards.append(FlipThreeCard(self))
 
     def shuffle(self) -> None:
         """Randomly shuffle the cards in the deck."""
