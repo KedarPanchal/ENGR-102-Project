@@ -211,6 +211,8 @@ async def main():
 
     await ui.clear()
     await ui.clear(window="hand")
+    await ui.set_title("Game Over", fmt="210 bold")
+    await ui.set_title("Game Over", fmt="210 bold", window="hand")
 
     rankings = sorted(playerids.values(), key=lambda p: p.get_score(), reverse=True)
     # Game ended early without a winner
