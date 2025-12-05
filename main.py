@@ -69,6 +69,8 @@ async def main():
             await ui.println("Invalid player count. Must be an Integer. Try again: ")
             player_count = await ui.input()
 
+    await ui.clear()
+
     # Create Dictionary for Player list
     playerids = {}
     for i in range(1, player_count + 1):

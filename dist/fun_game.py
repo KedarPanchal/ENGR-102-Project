@@ -1,3 +1,17 @@
+# By submitting this assignment, I agree to the following:
+# "Aggies do not lie, cheat, or steal, or tolerate those who do."
+# "I have not given or received any unauthorized aid on this assignment."
+#
+# Names: Kedar Panchal
+# Blane Weiblen
+# Nate Waguespack
+# Joshua Le
+# Section: 213
+# Assignment: Lab 13
+# Date: 5 December 2025
+#
+#
+
 """
 Flip 7 Game - Consolidated Version
 All game logic, UI, and main code in a single file.
@@ -881,75 +895,20 @@ class UI:
 
 
 # ============================================================================
-# GAME RULES
-# ============================================================================
-
-FLIP7_RULES = """OBJECTIVE
-Be the first player to reach 200 points across multiple rounds.
-
-COMPONENTS (108 cards total)
-Number Cards (81): 12×12, 11×11, 10×10... 2×2, 1×1, 1×0
-Modifier Cards (15): +2 through +10 (add points), x2 (doubles number card total)
-Action Cards (12): Freeze!, Flip Three!, Second Chance!
-
-SETUP
-1. Shuffle all 108 cards into a central draw pile.
-2. Choose a dealer (rotates clockwise each round).
-3. Track scores using paper or scoresheet.
-
-DEALING
-1. Dealer deals one card at a time to each player.
-2. If an Action card is dealt, resolve it immediately before continuing.
-3. Continue until everyone has at least one card.
-
-PLAYER TURNS (starting left of dealer, clockwise)
-Active players (not busted/stayed) choose:
-
-HIT: Draw one card
-- Number cards go in a row (count toward score and 7-unique goal)
-- Modifier cards go above row (affect score only)
-- Action cards resolve immediately
-- BUST if you draw a duplicate number (score 0 for round)
-- INSTANT WIN if you collect 7 unique numbers (round ends, +15 bonus)
-
-STAY: End turn voluntarily, keep all cards and points (becomes inactive)
-
-ACTION CARDS
-Freeze! - Target active player immediately ends turn, keeps current score.
-
-Flip Three! - Target active player draws 3 cards one at a time. Number/Modifier cards resolve normally. Action cards drawn are set aside (except Second Chance). Stop early if player busts or reaches 7 unique numbers.
-
-Second Chance - Target active player is protected from one bust. When duplicate drawn, discard both cards and continue. Can only hold one at a time. All unused Second Chance cards discarded at round end.
-
-ROUND END
-Round ends when either:
-1. A player collects 7 unique number cards, OR
-2. All players have busted or stayed
-
-SCORING
-Busted: 0 points
-Otherwise:
-1. Sum all number cards
-2. If x2 card: double the sum
-3. Add all +X modifier cards
-4. If 7 unique numbers: add 15-point bonus
-
-GAME END
-When any player reaches 200+ points, highest score(s) win(s).
-"""
-
-
-# ============================================================================
 # MAIN GAME LOGIC
 # ============================================================================
 
+# using file methods to display the rules of the game
 def displayrules():
     """Read and display the file with Flip 7 rules for players.
-    Returns:
+    Ensure that Flip7Rules.txt is in the same directory as main.py.
+     Returns:
          The text of the rules as a string.
      """
-    return FLIP7_RULES
-
+    rules = open('Flip7Rules.txt', 'r')
+    rules_text = rules.read()
+    rules.close()
+    return rules_text
 
 def checkRoundEnd(playerdict):
     """Check if the current round has ended.
@@ -1000,6 +959,8 @@ async def main():
         except ValueError:
             await ui.println("Invalid player count. Must be an Integer. Try again: ")
             player_count = await ui.input()
+
+    await ui.clear()
 
     # Create Dictionary for Player list
     playerids = {}
