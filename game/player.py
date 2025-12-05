@@ -130,13 +130,12 @@ class Player:
             if not targeted_player:
                 await self._print(f"No player found with ID {targeted_id}. Please try again.")
                 continue
+            if not targeted_player.is_active():
+                await self._print(f"Player {targeted_id} is not active. Please choose another player.")
+                continue
             else:
                 break
 
-        for player in self._players:
-            if player._id == targeted_player:
-                targeted_player = player
-                break
         await action_card.action(targeted_player)
 
     def stay(self) -> None:

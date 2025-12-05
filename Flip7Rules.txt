@@ -33,7 +33,7 @@ Freeze! - Target active player immediately ends turn, keeps current score.
 
 Flip Three! - Target active player draws 3 cards one at a time. Number/Modifier cards resolve normally. Action cards drawn are set aside (except Second Chance). Stop early if player busts or reaches 7 unique numbers.
 
-Second Chance - Protects from one duplicate. When duplicate drawn, discard both cards and continue. Can only hold one at a time. If dealt a second, give to another active player without one (otherwise discard). All unused Second Chance cards discarded at round end.
+Second Chance - Target active player is protected from one bust. When duplicate drawn, discard both cards and continue. Can only hold one at a time. All unused Second Chance cards discarded at round end.
 
 ROUND END
 Round ends when either:

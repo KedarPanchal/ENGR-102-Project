@@ -237,6 +237,7 @@ class FlipThreeCard(ActionCard):
                             fmts=["cyan bold", "#ffffff"],
                             targeted_player=targeted_player
                         )
+                        targeted_player.stay()
                         break
                 if targeted_player.has_seven():
                     break
