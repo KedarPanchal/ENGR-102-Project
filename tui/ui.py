@@ -39,8 +39,12 @@ class UI:
         self._layout.add_slot("input", height=5)
 
         # Initialize windows
-        self._main_window = ptg.Window(title="[210 bold]Game Info")
-        self._hand_window = ptg.Window(title="[210 bold] Current Player's Hand")
+        self._main_window = ptg.Window(title="[210 bold]Game Info", overflow=ptg.Overflow.SCROLL)
+        self._main_text = ptg.Label("")
+        self._main_window += self._main_text
+        self._hand_window = ptg.Window(title="[210 bold] Current Player's Hand and Score", overflow=ptg.Overflow.SCROLL)
+        self._hand_text = ptg.Label("")
+        self._hand_window += self._hand_text
         self._input_field = ptg.InputField(prompt="> ")
         self._input_window = ptg.Window(self._input_field)
 
@@ -79,7 +83,7 @@ class UI:
         if not self._loop or not self._input_queue:
             return True
 
-        if self._input_queue.full() or command == "":
+        if self._input_queue.full():
             return True
 
         self._loop.call_soon_threadsafe(self._input_queue.put_nowait, command)
@@ -151,8 +155,8 @@ class UI:
         command = await self._input_queue.get()
         return command
 
-    def println(self, *args: str, fmts: Optional[List[str]] = None, window: str = "main", sep: str = " "):
-        """Prints a line of text to a window.
+    async def println(self, *args: str, fmts: Optional[List[str]] = None, window: str = "main", sep: str = " ", end: str = "\n"):
+        """Prints a line of text to a window asynchronously.
         Args:
             *args: The strings to print.
             fmts: Optional list of format strings for each argument.
@@ -163,6 +167,8 @@ class UI:
                 If not provided, defaults to "main".
             sep: The separator to use between arguments.
                 If not provided, defaults to a single space.
+            end: The string to append at the end of the line.
+                If not provided, defaults to a newline.
         Raises:
             ValueError: If the number of formats exceeds the number of arguments
                 or if an unknown window is specified.
@@ -183,16 +189,48 @@ class UI:
 
         # Write formatted arguments to string stream
         for fmt, arg in zip(fmts, args):
-            print(f"[{fmt}]{arg}[/]", end=sep, file=sstream)
+            print(f"[{fmt}]{str(arg)}[/]", end=sep, file=sstream)
+        print(end, end="", file=sstream)
 
-        # Write to window
-        match window:
-            case "main":
-                self._main_window += ptg.Label(sstream.getvalue().rstrip(sep))
-            case "hand":
-                self._hand_window += ptg.Label(sstream.getvalue().rstrip(sep))
-            case _:
-                raise ValueError(f"Unknown window: {window}")
+        # Prepare the label text
+        label_text = sstream.getvalue().rstrip(sep)
+        
+        # Add widget to window in a thread-safe manner
+        def _add_widget():
+            match window:
+                case "main":
+                    self._main_text.value += label_text
+                case "hand":
+                    self._hand_text.value += label_text
+                case _:
+                    raise ValueError(f"Unknown window: {window}")
+        
+        # Run the widget addition in a thread to avoid blocking
+        await asyncio.to_thread(_add_widget)
+
+    async def clear(self, window: str = "main"):
+        """Clears all content from the specified window asynchronously.
+        Args:
+            window: The window to clear ("main" or "hand").
+                If not provided, defaults to "main".
+        Raises:
+            ValueError: If an unknown window is specified.
+        """
+
+        def _clear_window():
+            match window:
+                case "main":
+                    # self._main_window.set_widgets([])
+                    self._main_text.value = ""
+                case "hand":
+                    # self._hand_window.set_widgets([])
+                    self._hand_text.value = ""
+                case _:
+                    raise ValueError(f"Unknown window: {window}")
+            
+        # Run the window clearing in a thread to avoid blocking
+        await asyncio.to_thread(_clear_window)
+        self._manager.compositor.redraw()
 
 
 # Test code goes here
@@ -203,9 +241,9 @@ async def main():
     asyncio.create_task(ui.run())
     await ui.wait_until_running()
     while last_input.lower() != "exit":
-        ui.println("Enter 'exit' to quit.")
+        await ui.println("Enter 'exit' to quit.")
         last_input = await ui.input()
-        ui.println("You entered:", last_input)
+        await ui.println("You entered:", last_input)
 
     await ui.stop()
 

@@ -28,15 +28,21 @@ class Deck:
         - ActionCards: To be added when their implementation is complete
         """
         self._cards: List[BaseCard] = []
-        # Add NumberCards
-        for number in range(1, 13):
-            for _ in range(number):
-                self._cards.append(NumberCard(number))
-        self._cards.append(NumberCard(0))
-        # Add ScoreModifierCards
-        for i in range(2, 11):
-            self._cards.append(ScoreModifierCard(i, True))
-        self._cards.append(ScoreModifierCard(2, False))
+        # # Add NumberCards
+        # for number in range(1, 13):
+        #     for _ in range(number):
+        #         self._cards.append(NumberCard(number))
+        # self._cards.append(NumberCard(0))
+        # # Add ScoreModifierCards
+        # for i in range(2, 11):
+        #     self._cards.append(ScoreModifierCard(i, True))
+        # self._cards.append(ScoreModifierCard(2, False))
+        # # Add ActionCards
+        # self._cards.append(FreezeCard())
+        # self._cards.append(SecondChanceCard())
+        # self._cards.append(FlipThreeCard(self))
+        for number in range(0, 13):
+            self._cards.append(NumberCard(number))
         # Add ActionCards
         self._cards.append(FreezeCard())
         self._cards.append(SecondChanceCard())
@@ -55,12 +61,13 @@ class Deck:
         return self._cards.pop() if self._cards else None
 
     def return_cards(self, cards: List[BaseCard]) -> None:
-        """Return a list of cards back to the deck.
+        """Return a list of cards back to the deck and clear the input list.
 
         Args:
             cards: List of cards to return to the deck.
         """
         self._cards += cards
+        cards.clear()
 
     def __iter__(self) -> Iterator[BaseCard]:
         """Provide an iterator over the cards in the deck.

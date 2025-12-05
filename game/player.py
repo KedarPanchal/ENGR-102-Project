@@ -33,21 +33,40 @@ class Player:
         self._score = 0
         self._hand: List[BaseCard] = []
         self._active = True
-        self._opponents = []
+        self._players = []
         self._second_chance = False
 
-    def set_opponents(self, opponents) -> None:
+        # UI callbacks
+        self._print = None
+        self._input = None
+
+    def set_players(self, players) -> None:
         """Set the list of opponent players.
 
         Args:
-            opponents: List of other Player instances in the game.
+            players: List of other Player instances in the game.
         """
+        self._players = [player for player in players]
 
-        for opponent in opponents:
-            if opponent._id != self._id:
-                self._opponents.append(opponent)
+    def set_callbacks(self, print_, input_) -> None:
+        """Set the print and input callback functions for the player.
 
-    def hit(self, deck: Deck) -> bool:
+        Args:
+            print_: Function to print messages to the player.
+            input_: Function to get input from the player.
+        """
+        self._print = print_
+        self._input = input_
+
+    def is_active(self) -> bool:
+        """Check if the player is still active in the current round.
+
+        Returns:
+            True if the player is active, False otherwise.
+        """
+        return self._active
+
+    async def hit(self, deck: Deck) -> bool:
         """Draw a card from the deck and add it to the player's hand.
 
         If the drawn card is an ActionCard, its action is immediately executed.
@@ -67,38 +86,48 @@ class Player:
             return False
 
         self._hand.append(card)
+        await self._print(f"Player {self._id} drew the card {card}")
+
         if isinstance(card, ActionCard):
-            if isinstance(card, SecondChanceCard):
-                card.action(self)
-            else:
-                self.take_action(card)
+            await self.take_action(card)
 
-        return True
+        return card
 
-    def take_action(self, action_card: ActionCard) -> None:
+    async def take_action(self, action_card: ActionCard) -> None:
         """Execute the action of an ActionCard on this player.
 
         Args:
             action_card: The ActionCard to be executed.
         """
+        if not self._print or not self._input:
+            return
+    
         targeted_player = None
         while True:
-            targeted_id = input("Select a player ID to target with the action card: ")
+            await self._print("Select a player to target with the action card:")
+            targeted_id = await self._input()
             if not targeted_id.isdigit():
-                print("Invalid input. Please enter a numeric player ID.")
+                await self._print("Invalid input. Please enter a numeric player ID.")
                 continue
 
             targeted_id = int(targeted_id)
-            matching_ids = [opponent._id for opponent in self._opponents if opponent._id == targeted_id]
-            # None or multiple matches
-            if len(matching_ids) != 1:
-                print("No matching player found. Please try again.")
+            targeted_player = None
+            for player in self._players:
+                if int(player._id) == targeted_id:
+                    targeted_player = player
+                    break
 
-            targeted_player = matching_ids[0]
-            break
+            if not targeted_player:
+                await self._print(f"No player found with ID {targeted_id}. Please try again.")
+                continue
+            else:
+                break
 
-        if targeted_player:
-            action_card.action(targeted_player)
+        for player in self._players:
+            if player._id == targeted_player:
+                targeted_player = player
+                break
+        action_card.action(targeted_player)
 
     def stay(self) -> None:
         """End the player's turn and finalize their score for the round.
@@ -125,6 +154,14 @@ class Player:
             True if the player has seven unique NumberCards, False otherwise.
         """
         return len({card for card in self._hand if isinstance(card, NumberCard)}) == 7
+    
+    def get_score(self) -> int:
+        """Get the player's current score.
+
+        Returns:
+            The player's score.
+        """
+        return self._score
 
     def add_bonus(self) -> None:
         """Add a bonus to the player's score if they have seven unique cards.
@@ -137,10 +174,14 @@ class Player:
 
     def update_score(self) -> None:
         """Calculate and update the player's score based on cards in hand.
+        If the player is busted, their score remains unchanged.
 
         Applies all score modifiers (multipliers first, then additions) and
         adds the values of all number cards to calculate the final score.
         """
+        if self.is_busted():
+            return
+
         total_multiplier = 1
         total_addition = 0
         for card in self._hand:
