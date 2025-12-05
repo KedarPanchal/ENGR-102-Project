@@ -93,7 +93,10 @@ class Player:
             return False
 
         self._hand.append(card)
-        await self._print(f"Player {self._id} drew the card {card}")
+        await self._print(
+            f"Player {self._id}", "drew the card", f"{card}",
+            fmts=["cyan bold", "#ffffff", "yellow bold"]
+        )
 
         if isinstance(card, ActionCard):
             await self.take_action(card)

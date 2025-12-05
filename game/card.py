@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List, Optional
 if TYPE_CHECKING:
     from .player import Player
     from .deck import Deck
@@ -129,7 +129,7 @@ class ActionCard(BaseCard):
     """
 
     @abstractmethod
-    async def action(self, targeted_player: 'Player') -> None:
+    async def action(self, targeted_player: Player) -> None:
         """Perform the action associated with this card.
 
         Args:
@@ -137,15 +137,15 @@ class ActionCard(BaseCard):
         """
         pass
 
-    async def log(self, message: str, targeted_player: Player) -> None:
-        """Log a message to the targeted player's print callback.
+    async def _print(self, *args, fmts: Optional[List[str]]=None, sep=" ", end="\n", targeted_player: Player) -> None:
+        """Print a message to the targeted player's print callback.
 
         Args:
-            message: The message to log.
+            message: The message to print.
             targeted_player: The player whose print callback will be used.
         """
         if targeted_player._print:
-            await targeted_player._print(message)
+            await targeted_player._print(*args, fmts=fmts, sep=sep, end=end)
 
 
 class FreezeCard(ActionCard):
@@ -158,7 +158,11 @@ class FreezeCard(ActionCard):
             targeted_player: The player to be frozen.
         """
         targeted_player.stay()
-        await self.log(f"Player {targeted_player.get_id()} has been frozen and will skip their next turn!", targeted_player)
+        await self._print(
+            f"Player {targeted_player.get_id()}", "has been frozen and will skip their next turn!",
+            fmts=["blue bold", "#ffffff"],
+            targeted_player=targeted_player
+        )
 
     def __str__(self) -> str:
         """Provide a string representation of the Freeze card.
@@ -179,7 +183,11 @@ class SecondChanceCard(ActionCard):
             targeted_player: The player who gets a second chance.
         """
         targeted_player.add_second_chance()
-        await self.log(f"Player {targeted_player.get_id()} has received a Second Chance!", targeted_player)
+        await self._print(
+            f"Player {targeted_player.get_id()}", "has received a Second Chance!",
+            fmts=["yellow bold", "#ffffff"],
+            targeted_player=targeted_player
+        )
 
     def __str__(self) -> str:
         """Provide a string representation of the Second Chance card.
@@ -217,19 +225,30 @@ class FlipThreeCard(ActionCard):
                 targeted_player.receive_card(card)
                 if targeted_player.is_busted():
                     if targeted_player.has_second_chance():
-                        await self.log(f"Player {targeted_player.get_id()} has busted but is using their Second Chance!", targeted_player)
+                        await self._print(
+                            f"Player {targeted_player.get_id()}", "busted and used a second chance.",
+                            fmts=["cyan bold", "#ffffff"],
+                            targeted_player=targeted_player
+                        )
                         targeted_player.use_second_chance()
                     else:
-                        await self.log(f"Player {targeted_player.get_id()} has busted!", targeted_player)
+                        await self._print(
+                            f"Player {targeted_player.get_id()}", "busted and their round is over.",
+                            fmts=["cyan bold", "#ffffff"],
+                            targeted_player=targeted_player
+                        )
                         break
                 if targeted_player.has_seven():
-                    await self.log(f"Player {targeted_player.get_id()} has collected seven unique cards!", targeted_player)
                     break
 
         # Execute any action cards drawn
         while action_card_stack:
             action_card = action_card_stack.pop()
-            await self.log(f"Player {targeted_player.get_id()} flipped the card {action_card}", targeted_player)
+            await self._print(
+                f"Player {targeted_player.get_id()}", "flipped the card", f"{action_card}",
+                fmts=["cyan bold", "#ffffff", "yellow bold"],
+                targeted_player=targeted_player
+            )
             await targeted_player.take_action(action_card)
 
     def __str__(self) -> str:

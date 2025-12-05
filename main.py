@@ -97,9 +97,18 @@ async def main():
         if not playerids[currentplayerid].is_active():
             continue
 
-        # Print hand
+        # Print hand and current player metadata
         await ui.clear(window="hand")
-        await ui.println(f"Score: {playerids[currentplayerid].get_score()}", window="hand")
+        await ui.println(
+            "Score:", playerids[currentplayerid].get_score(),
+            fmts=["green bold", "#ffffff"],
+            window="hand"
+        )
+        await ui.println(
+            "Second Chance Available:", playerids[currentplayerid].has_second_chance(), 
+            fmts=["yellow bold", "#ffffff"],
+            window="hand"
+        )
         for card in playerids[currentplayerid]:
             await ui.println(card, window="hand")
 
@@ -107,7 +116,11 @@ async def main():
         await ui.set_title(f"Player {currentplayerid}'s Info", fmt="210 Bold", window="hand")
 
         # Ask player their choice for turn
-        await ui.println(f"Player {currentplayerid}, would you like to hit, stay or end game")
+        await ui.println(
+            f"Player {currentplayerid},",
+            "what is your decision? (hit/stay/end):",
+            fmts=["cyan bold", "#ffffff"]
+        )
         decision = await ui.input()
 
         # If player chose to hit
@@ -124,7 +137,10 @@ async def main():
 
         # If player chose to stay
         elif decision.lower() == "stay":
-            await ui.println(f"Player {currentplayerid} stood and their round is over.")
+            await ui.println(
+                f"Player {currentplayerid}", "stood and their round is over.",
+                fmts=["cyan bold", "#ffffff"]
+            )
             playerids[currentplayerid].stay()
 
         # If player wants to end game
@@ -141,9 +157,15 @@ async def main():
         if playerids[currentplayerid].is_busted():
             if playerids[currentplayerid].has_second_chance():
                 playerids[currentplayerid].use_second_chance()
-                await ui.println(f"Player {currentplayerid} busted and used second chance.")
+                await ui.println(
+                    f"Player {currentplayerid}", "busted and used a second chance.",
+                    fmts=["cyan bold", "#ffffff"]
+                )
             else:
-                await ui.println(f"Player {currentplayerid} busted and their round is over.")
+                await ui.println(
+                    f"Player {currentplayerid}", "busted and their round is over.",
+                    fmts=["cyan bold", "#ffffff"]
+                )
                 playerids[currentplayerid].stay()
 
         # Check if round is over and add scores
@@ -152,6 +174,11 @@ async def main():
             for playerid in playerids:
                 playerids[playerid].update_score()
                 playerids[playerid].reset()
+                if playerids[playerid].has_seven() and not playerids[playerid].is_busted():
+                    await ui.println(
+                        f"Player {currentplayerid}", "is a round winner and receives bonus points!",
+                        fmts=["cyan bold", "#ffffff"]
+                    )
                 playerids[playerid].add_bonus()  # Only adds bonus if player meets the criteria
 
             # Reset state for next round
@@ -166,9 +193,15 @@ async def main():
 
     await ui.clear()
     if not winner:
-        await ui.println("Game ended early. No winner.")
+        await ui.println(
+            "Game ended early.", "No winner.",
+            fmts=["#ffffff", "red bold"]
+         )
     else:
-        await ui.println(f"Player {winner.get_id()} has won the game with a score of {winner.get_score()}!")
+        await ui.println(
+            f"Player {winner.get_id()}", "has won the game with a score of", winner.get_score(),
+            fmts=["green bold", "#ffffff", "green bold"]
+        )
 
     await ui.println("\nPress Enter to exit...")
     await ui.input()
