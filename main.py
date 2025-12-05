@@ -104,8 +104,8 @@ async def main():
 
     # Start Game
     currentplayerid = 0
-    game = True
-    while game:
+    winner = None
+    while not winner:
         # Loop back to player 1 if player id is greater player count
         if currentplayerid >= player_count:
             currentplayerid = 1
@@ -144,7 +144,6 @@ async def main():
 
         # If player wants to end game
         elif decision.lower() == "end" or decision.lower() == "endgame" or decision.lower() == "end game":
-            game = False
             break
 
         else:
@@ -177,7 +176,14 @@ async def main():
             # Check if any player has won the game
             for playerid in playerids:
                 if (playerids[playerid].won_game()):
-                    game = False
+                    winner = playerids[playerid]
+                    break
+
+    await ui.clear()
+    if not winner:
+        await ui.println("Game ended early. No winner.")
+    else:
+        await ui.println(f"Player {winner.get_id()} has won the game with a score of {winner.get_score()}!")
 
     await ui.stop()
 
