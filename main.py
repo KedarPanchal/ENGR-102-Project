@@ -85,6 +85,7 @@ async def main():
 
     # Start Game
     currentplayerid = 0
+    round = 1
     winner = None
     while not winner:
         # Loop back to player 1 if player id is greater player count
@@ -96,6 +97,9 @@ async def main():
         # Skip player if player has already busted
         if not playerids[currentplayerid].is_active():
             continue
+
+        # Update round count in main window
+        await ui.set_title(f"Flip 7 - Round {round}", fmt="210 bold")
 
         # Print hand and current player metadata
         await ui.clear(window="hand")
@@ -113,7 +117,7 @@ async def main():
             await ui.println(card, window="hand")
 
         # Set hand window title
-        await ui.set_title(f"Player {currentplayerid}'s Info", fmt="210 Bold", window="hand")
+        await ui.set_title(f"Player {currentplayerid}'s Info", fmt="210 bold", window="hand")
 
         # Ask player their choice for turn
         await ui.println(
@@ -181,9 +185,10 @@ async def main():
                     )
                 playerids[playerid].add_bonus()  # Only adds bonus if player meets the criteria
 
-            # Reset state for next round
+            # Set state for next round
             currentplayerid = 0
-            await ui.println("\n")
+            round += 1
+            await ui.clear()
 
             # Check if any player has won the game
             for playerid in playerids:
