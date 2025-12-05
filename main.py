@@ -168,7 +168,7 @@ async def main():
             for playerid in playerids:
                 playerids[playerid].update_score()
                 playerids[playerid].reset()
-                playerids[playerid].add_bonus() # Only adds bonus if player meets the criteria
+                playerids[playerid].add_bonus()  # Only adds bonus if player meets the criteria
 
             # Reset state for next round
             currentplayerid = 0

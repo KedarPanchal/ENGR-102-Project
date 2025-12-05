@@ -143,7 +143,6 @@ class Player:
         based on the cards in their hand.
         """
         self._active = False
-        self.update_score()
 
     def is_busted(self) -> bool:
         """Check if the player has duplicate number cards (bust condition).
@@ -194,12 +193,9 @@ class Player:
         for card in self._hand:
             if not isinstance(card, AddableCard):
                 continue
-            if isinstance(card, ScoreModifierCard):
-                if card.is_addition():
-                    total_addition += card.value()
-                else:
-                    total_multiplier *= card.value()
-            elif isinstance(card, NumberCard):
+            if isinstance(card, ScoreModifierCard) and not card.is_addition():
+                total_multiplier *= card.value()
+            else:
                 total_addition += card.value()
 
         self._score *= total_multiplier
