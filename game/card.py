@@ -185,7 +185,7 @@ class SecondChanceCard(ActionCard):
         targeted_player.add_second_chance()
         await self._print(
             f"Player {targeted_player.get_id()}", "has received a Second Chance!",
-            fmts=["yellow bold", "#ffffff"],
+            fmts=["cyan bold", "#ffffff"],
             targeted_player=targeted_player
         )
 

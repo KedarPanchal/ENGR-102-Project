@@ -110,9 +110,10 @@ async def main():
         )
         await ui.println(
             "Second Chance Available:", playerids[currentplayerid].has_second_chance(), 
-            fmts=["yellow bold", "#ffffff"],
+            fmts=["magenta bold", "#ffffff"],
             window="hand"
         )
+        await ui.println("Current Hand:", fmts=["yellow bold"], window="hand")
         for card in playerids[currentplayerid]:
             await ui.println(card, window="hand")
 
