@@ -208,7 +208,14 @@ async def main():
             f"Player {winner.get_id()}", "has won the game with a score of", winner.get_score(),
             fmts=["green bold", "#ffffff", "green bold"]
         )
-
+    
+    rankings = sorted(playerids.values(), key=lambda p: p.get_score(), reverse=True)
+    await ui.println("\nFinal Rankings:")
+    for rank, player in enumerate(rankings, start=1):
+        await ui.println(
+                f"{rank}.", f"Player {player.get_id()}", "-", f"Score: {player.get_score()}",
+            fmts=["210 bold", "cyan bold", "#ffffff", "green bold"]
+        )
     await ui.println("\nPress Enter to exit...")
     await ui.input()
     await ui.stop()
