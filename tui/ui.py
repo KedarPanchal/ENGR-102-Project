@@ -39,11 +39,19 @@ class UI:
         self._layout.add_slot("input", height=5)
 
         # Initialize windows
-        self._main_window = ptg.Window(title="[210 bold]Game Info", overflow=ptg.Overflow.SCROLL)
-        self._main_text = ptg.Label("")
+        self._main_window = ptg.Window(
+            title="[210 bold]Game Info",
+            overflow=ptg.Overflow.SCROLL,
+            vertical_align=ptg.VerticalAlignment.TOP
+        )
+        self._main_text = ptg.Label("", parent_align=ptg.HorizontalAlignment.LEFT)
         self._main_window += self._main_text
-        self._hand_window = ptg.Window(title="[210 bold] Current Player's Info", overflow=ptg.Overflow.SCROLL)
-        self._hand_text = ptg.Label("")
+        self._hand_window = ptg.Window(
+            title="[210 bold] Current Player's Info", 
+            overflow=ptg.Overflow.SCROLL,
+            vertical_align=ptg.VerticalAlignment.TOP
+        )
+        self._hand_text = ptg.Label("", parent_align=ptg.HorizontalAlignment.LEFT)
         self._hand_window += self._hand_text
         self._input_field = ptg.InputField(prompt="> ")
         self._input_window = ptg.Window(self._input_field)
