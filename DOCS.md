@@ -86,8 +86,8 @@ Manages the collection of all cards used in the game. The Deck class:
 - Automatically creates and stores all the cards when initialized
 - Contains the correct quantities of each card type:
   - Number cards: twelve 12s, eleven 11s, ten 10s, down to one 1, plus one 0
-  - Score modifiers: one of each from +2 to +10, plus one x2 multiplier
-  - Action cards: one of each type (Freeze, Flip Three, Second Chance)
+  - Score modifiers: one of each from +2 to +10, plus six x2 multipliers
+  - Action cards: four of each type (Freeze, Flip Three, Second Chance)
 - Can shuffle the cards randomly
 - Allows players to draw cards from the top
 - Can accept returned cards (when rounds end and cards are discarded)
@@ -100,14 +100,20 @@ Represents each person playing the game. The Player class:
 - Maintains their current score (stored privately as `_score`)
 - Holds their hand of cards
 - Knows if they're still active in the current round
-- Knows who their opponents are (to target them with action cards)
+- Knows who the other players are (to target them with action cards)
+- Has callback functions for printing messages and getting input (connected to the UI)
 - Can perform actions like:
   - **Hit:** Draw a card from the deck. If it's an action card, it might trigger immediately!
   - **Stay:** End their turn and lock in their score
-  - **Take Action:** When drawing an action card, choose an opponent to target (requires user input!)
-  - **Check for bust:** See if they drew duplicate NumberCards
+  - **Take Action:** When drawing an action card, choose another player to target (requires user input!)
+  - **Check for bust:** See if they drew duplicate NumberCards (accounting for second chances)
   - **Check for seven:** See if they collected seven unique NumberCards
+  - **Get score:** Retrieve the player's current total score
   - **Update score:** Calculate points based on their cards (number cards + modifiers)
+  - **Add bonus:** Award the 15-point bonus for collecting seven unique cards
+  - **Reset:** Clear the hand and prepare for a new round
+  - **Manage second chances:** Track and use second chance tokens to avoid busting
+  - **Receive card:** Add a card directly to the hand (used by FlipThreeCard)
   - **Check for game win:** See if their total score has reached 200
 
 The Player class also handles the special rule that drawing seven unique NumberCards awards a 15-point bonus!
@@ -134,11 +140,15 @@ deck = Deck()
 player1 = Player(1)
 player2 = Player(2)
 
+# Let players know about each other (for action card targeting)
+player1.set_players([player1, player2])
+player2.set_players([player1, player2])
+
 # Shuffle the deck
 deck.shuffle()
 
 # Player 1 draws a card
-player1.hit(deck)
+await player1.hit(deck)
 
 # Check if player 1 has seven unique cards
 if player1.has_seven():
@@ -304,4 +314,139 @@ These special methods make our custom objects (cards, players, decks) behave lik
 4. **Professional coding style**: Your code looks and feels like standard Python
 
 These special methods are part of what makes Python such a powerful and expressive language - you can create your own types that work seamlessly with all of Python's features!
+
+## Understanding Asynchronous Code: Making the UI Responsive
+
+If you look at the `UI` class in `ui.py`, you'll notice some unusual keywords like `async` and `await`. This is **asynchronous programming**, and while it might seem intimidating at first, the concept is actually quite intuitive!
+
+### The Problem: Waiting Around
+
+Imagine you're cooking dinner and you need to:
+1. Boil water (takes 10 minutes)
+2. Chop vegetables (takes 5 minutes)
+3. Cook pasta (takes 8 minutes)
+
+If you did these tasks **synchronously** (one after another), you'd:
+- Start boiling water → wait 10 minutes doing nothing
+- Then chop vegetables → 5 minutes
+- Then cook pasta → 8 minutes
+- Total time: 23 minutes
+
+But that's inefficient! While the water is boiling, you could be chopping vegetables. This is what **asynchronous** programming is all about - doing other work while waiting for something to finish.
+
+### How Async Works in Our Game
+
+In our Flip 7 game, the UI needs to:
+- Display game information on the screen
+- Wait for the user to type commands
+- Update the display when cards are drawn
+- Handle multiple things happening at once
+
+Without async, the game would freeze while waiting for user input - you couldn't see updates or animations. With async, the UI can stay responsive!
+
+### Key Async Concepts
+
+#### `async` Functions
+
+When you see `async def` instead of just `def`, it means "this function might need to wait for something, but it won't block everything else."
+
+```python
+async def input(self):
+    """Wait for user to type something"""
+    command = await self._input_queue.get()
+    return command
+```
+
+The `async` keyword says: "This function involves waiting, so let other code run while we wait."
+
+#### `await` Keyword
+
+The `await` keyword means "wait for this to finish, but let other async tasks run in the meantime."
+
+```python
+command = await ui.input()  # Wait for user input, but UI stays responsive
+print(f"You typed: {command}")  # Only runs after user presses Enter
+```
+
+Think of `await` like saying "I'll wait here, but others can keep working."
+
+#### Why Our UI Uses Async
+
+Look at the `UI` class methods:
+
+**`async def run(self)`**: Starts the UI manager in the background. It uses `await asyncio.to_thread()` to run the UI in a separate thread, so it doesn't block the game logic.
+
+**`async def input(self)`**: Waits for user input without freezing the entire program. While waiting for the user to type, the UI can still update the display, show animations, or handle other events.
+
+**`async def println(self, *args, ...)`**: Prints to the screen without blocking. Even though printing is usually fast, doing it asynchronously ensures the UI never freezes, even if it gets many print requests at once.
+
+**`async def stop(self)`**: Gracefully shuts down the UI by cancelling the background task and cleaning up resources.
+
+### Real-World Example from Our Game
+
+Here's what happens when a player draws a card:
+
+```python
+# Player draws a card (async because it needs to print to UI)
+card = await player.hit(deck)
+
+# The hit() method prints the card drawn
+await self._print(f"Player {self._id} drew {card}")
+
+# If it's an action card, we need user input
+if isinstance(card, ActionCard):
+    await self._print("Choose a target player:")
+    target_id = await self._input()  # Wait for user to type
+    # ... rest of the logic
+```
+
+Notice how everything that interacts with the UI (printing or getting input) uses `await`. This ensures:
+1. The UI updates immediately when cards are drawn
+2. The game waits properly for user input
+3. The display never freezes or becomes unresponsive
+4. Multiple players could potentially interact simultaneously (in a networked version)
+
+### The Event Loop: The Conductor
+
+Behind the scenes, Python's `asyncio` library uses an **event loop** - think of it as a conductor coordinating an orchestra. It manages all the async tasks, deciding which one should run at any given moment.
+
+When you run an async program, you start it with:
+```python
+asyncio.run(main())
+```
+
+This creates an event loop that:
+1. Starts your `main()` function
+2. Whenever it hits an `await`, it pauses that task and runs other tasks
+3. When an awaited operation finishes (like user input arriving), it resumes that task
+4. Keeps juggling tasks until everything is done
+
+### Why Not Just Use Threads?
+
+You might think, "Can't we just use multiple threads?" We could, but:
+- Threads are heavier and use more memory
+- Threads can have race conditions (two threads modifying the same data)
+- Async is perfect for I/O-bound tasks (waiting for input, network, file reads)
+- Async code is often easier to reason about than multi-threaded code
+
+Our UI actually uses *both* - it runs the pytermgui manager in a thread (`asyncio.to_thread()`), but coordinates with it using async/await!
+
+### Don't Worry If It's Confusing!
+
+Async programming is an advanced topic. For this class, the key takeaways are:
+1. `async def` creates a function that can pause and resume
+2. `await` means "wait for this, but let other things run"
+3. It makes our UI responsive and smooth
+4. You need `await` when calling any `async` function
+
+You don't need to master async programming to understand the game logic - just know that it's what keeps the UI from freezing while waiting for your input!
+
+### Further Reading
+
+If you're curious to learn more about async programming:
+- Python's official `asyncio` documentation
+- "Async/await" tutorials for Python
+- Search for "Python concurrency" to understand different approaches
+
+But for now, focus on understanding classes, objects, and game logic - async is just the "magic" that makes the UI work smoothly!
 

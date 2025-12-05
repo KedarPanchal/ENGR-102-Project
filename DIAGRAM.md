@@ -16,6 +16,7 @@ classDiagram
     BaseCard <|-- AddableCard
 
     class NumberCard {
+        +__init__(self, value) None
         ~__hash__(self) int
         +__eq__(self, other) bool
     }
@@ -31,6 +32,7 @@ classDiagram
 
     class ActionCard {
         +action(self, targeted_player) None
+        ~_print(self, *args, fmts, sep, targeted_player) None
     }
     BaseCard <|-- ActionCard
 
@@ -71,15 +73,20 @@ classDiagram
         -_score: int
         -_hand: List[BaseCard]
         -_active: bool
-        -_opponents: List[Player]
+        -_players: List[Player]
         -_second_chance: bool
+        -_print: callable
+        -_input: callable
         +__init__(self, id) None
-        +set_opponents(self, opponents) None
+        +set_players(self, players) None
+        +set_callbacks(self, print_, input_) None
+        +get_id(self) int
         +is_active(self) bool
-        +hit(self, deck) None
+        +hit(self, deck) bool | BaseCard
         +stay(self) None
         +is_busted(self) bool
         +has_seven(self) bool
+        +get_score(self) int
         +add_bonus(self) None
         +update_score(self) None
         +reset(self) List[BaseCard]
@@ -97,4 +104,30 @@ classDiagram
     BaseCard ..> Player: "Held by" 
     ActionCard ..> Player: "Targets" 
     Player ..> AddableCard: "Calculates score using"
+
+
+    class UI {
+        -_manager: WindowManager
+        -_layout: LayoutManager
+        -_main_window: Window
+        -_main_text: Label
+        -_hand_window: Window
+        -_hand_text: Label
+        -_input_field: InputField
+        -_input_window: Window
+        -_input_queue: Queue
+        -_loop: EventLoop
+        -_manager_process: Task
+        -_running: Event
+        +__init__(self) None
+        ~_handle_input(self, widget, key) bool
+        +run(self) None
+        +wait_until_running(self) None
+        +stop(self) None
+        +set_title(self, title, fmt, window) None
+        +input(self) str
+        +println(self, *args, fmts, window, sep, end) None
+        +clear(self, window) None
+    }
+    UI ..> Player: "Displays info for"
 ```
