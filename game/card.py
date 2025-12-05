@@ -137,7 +137,7 @@ class ActionCard(BaseCard):
         """
         pass
 
-    async def _print(self, *args, fmts: Optional[List[str]]=None, sep=" ", end="\n", targeted_player: Player) -> None:
+    async def _print(self, *args, fmts: Optional[List[str]]=None, sep=" ", targeted_player: Player) -> None:
         """Print a message to the targeted player's print callback.
 
         Args:
@@ -145,7 +145,7 @@ class ActionCard(BaseCard):
             targeted_player: The player whose print callback will be used.
         """
         if targeted_player._print:
-            await targeted_player._print(*args, fmts=fmts, sep=sep, end=end)
+            await targeted_player._print(*args, fmts=fmts, sep=sep)
 
 
 class FreezeCard(ActionCard):
@@ -160,7 +160,7 @@ class FreezeCard(ActionCard):
         targeted_player.stay()
         await self._print(
             f"Player {targeted_player.get_id()}", "has been frozen and will skip their next turn!",
-            fmts=["blue bold", "#ffffff"],
+            fmts=["cyan bold", "#ffffff"],
             targeted_player=targeted_player
         )
 

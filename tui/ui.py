@@ -40,11 +40,7 @@ class UI:
 
         # Initialize windows
         self._main_window = ptg.Window(title="[210 bold]Game Info", overflow=ptg.Overflow.SCROLL)
-        self._main_text = ptg.Label("")
-        self._main_window += self._main_text
         self._hand_window = ptg.Window(title="[210 bold] Current Player's Info", overflow=ptg.Overflow.SCROLL)
-        self._hand_text = ptg.Label("")
-        self._hand_window += self._hand_text
         self._input_field = ptg.InputField(prompt="> ")
         self._input_window = ptg.Window(self._input_field)
 
@@ -174,7 +170,7 @@ class UI:
         command = await self._input_queue.get()
         return command
 
-    async def println(self, *args: str, fmts: Optional[List[str]] = None, window: str = "main", sep: str = " ", end: str = "\n"):
+    async def println(self, *args: str, fmts: Optional[List[str]] = None, window: str = "main", sep: str = " "):
         """Prints a line of text to a window asynchronously.
         Args:
             *args: The strings to print.
@@ -209,7 +205,6 @@ class UI:
         # Write formatted arguments to string stream
         for fmt, arg in zip(fmts, args):
             print(f"[{fmt}]{str(arg)}[/]", end=sep, file=sstream)
-        print(end, end="", file=sstream)
 
         # Prepare the label text
         label_text = sstream.getvalue().rstrip(sep)
@@ -218,9 +213,11 @@ class UI:
         def _add_widget():
             match window:
                 case "main":
-                    self._main_text.value += label_text
+                    self._main_window += ptg.Label(label_text)
+                    self._main_window.selected_index = len(self._main_window) - 1
                 case "hand":
-                    self._hand_text.value += label_text
+                    self._hand_window += ptg.Label(label_text)
+                    self._hand_window.selected_index = len(self._main_window) - 1
                 case _:
                     raise ValueError(f"Unknown window: {window}")
 
@@ -239,11 +236,11 @@ class UI:
         def _clear_window():
             match window:
                 case "main":
-                    # self._main_window.set_widgets([])
-                    self._main_text.value = ""
+                    self._main_window.set_widgets([])
+                    self._main_window.clear_cache()
                 case "hand":
-                    # self._hand_window.set_widgets([])
-                    self._hand_text.value = ""
+                    self._hand_window.set_widgets([])
+                    self._hand_window.clear_cache()
                 case _:
                     raise ValueError(f"Unknown window: {window}")
 
